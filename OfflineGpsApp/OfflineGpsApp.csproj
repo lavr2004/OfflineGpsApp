@@ -66,14 +66,6 @@
 		<PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="2.88.9" />
 		<PackageReference Include="SkiaSharp" Version="2.88.9" />
 		
-		<!-- Working with GPX files data -->
-		<!--<PackageReference Include="BlueToque.SharpGPX" Version="2.22.302" />-->
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Reference Include="HammerParserLibrary">
-	    <HintPath>..\..\..\031_csharp_library_HammerParser\HammerParserLibrary.dll</HintPath>
-	  </Reference>
 	</ItemGroup>
 
 
@@ -84,6 +76,18 @@
 		<MauiXaml Update="DetailsPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <Folder Include="CodeBase\Libs\" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <Reference Include="HammerParserLibrary">
+	    <HintPath>CodeBase\Libs\HammerParserLibrary.dll</HintPath>
+	  </Reference>
 	</ItemGroup>
 
 </Project>
