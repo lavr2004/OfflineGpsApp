@@ -1,7 +1,7 @@
 ﻿using BruTile.Predefined;
 using BruTile;
 
-namespace OfflineGpsApp.CodeBase
+namespace OfflineGpsApp.CodeBase.Service.LayersService
 {
     public class OpenStreetMapLocalTileSource : ITileSource//BruTile
     {

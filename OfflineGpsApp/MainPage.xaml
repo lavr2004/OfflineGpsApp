@@ -4,7 +4,7 @@
              xmlns:mapsui="clr-namespace:Mapsui.UI.Maui;assembly=Mapsui.UI.Maui"
              x:Class="OfflineGpsApp.MainPage">
     <Grid>
-        <mapsui:MapView x:Name="MapView" VerticalOptions="FillAndExpand"/>
-        <Button Text="Загрузить GPX" VerticalOptions="End"/>
+        <mapsui:MapView x:Name="MapViewXaml" VerticalOptions="FillAndExpand"/>
+        <Button Text="Загрузить GPX" Clicked="OnLoadGpxClicked" VerticalOptions="End"/>
     </Grid>
 </ContentPage>
