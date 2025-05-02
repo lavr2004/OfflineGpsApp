@@ -1,12 +1,17 @@
 ﻿using BruTile.Predefined;
 using BruTile;
 
+using Mapsui.Styles; //ADDED: for Mapsui Attribution
+using System.Net.Http; //ADDED: for downloading tiles
+
 namespace OfflineGpsApp.CodeBase.Service.LayersService
 {
     public class OpenStreetMapLocalTileSource : ITileSource//BruTile
     {
-        //BruTile.ITileSource interface requirements that TileLayer needs to implement
+        //ADDED: for downloading tiles
+        private readonly HttpClient _httpClient = new HttpClient(); //ADDED
 
+        //BruTile.ITileSource interface requirements that TileLayer needs to implement
         public ITileSchema Schema { get; } = new GlobalSphericalMercator();
         public string Name { get; } = "Local OSM Tiles";
         public Attribution Attribution { get; } = new Attribution("© OpenStreetMap");
@@ -20,7 +25,20 @@ namespace OfflineGpsApp.CodeBase.Service.LayersService
             {
                 return await File.ReadAllBytesAsync(tilePath);
             }
-            return null;
+
+            //ADDED: for downloading tiles from OSM
+            var url = $"https://tile.openstreetmap.org/{oTileInfo.Index.Level}/{oTileInfo.Index.Col}/{oTileInfo.Index.Row}.png"; //ADDED
+            try //ADDED
+            {
+                var tileData = await _httpClient.GetByteArrayAsync(url); //ADDED
+                Directory.CreateDirectory(Path.GetDirectoryName(tilePath)); //ADDED
+                await File.WriteAllBytesAsync(tilePath, tileData); //ADDED
+                return tileData; //ADDED
+            } //ADDED
+            catch (Exception) //ADDED
+            {
+                return null; //ADDED
+            } //ADDED
         }
     }
 }

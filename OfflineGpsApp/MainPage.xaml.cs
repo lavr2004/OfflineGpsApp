@@ -9,6 +9,7 @@ using Mapsui;
 using Mapsui.Projections;
 using Mapsui.Tiling.Layers;
 using Mapsui.UI.Maui;
+using Mapsui.Layers;
 //using SharpGPX;
 
 
@@ -16,6 +17,8 @@ namespace OfflineGpsApp;
 
 public partial class MainPage : ContentPage
 {
+    Mapsui.Map oMapsuiMap;
+
     public MainPage()
     {
         InitializeComponent();
@@ -32,7 +35,7 @@ public partial class MainPage : ContentPage
 
         Mapsui.Tiling.Layers.TileLayer oTileLayer = TileLayerFactory.CreateTileLayer(isUseOnlineTiles: true);
 
-        Mapsui.Map oMapsuiMap = new Mapsui.Map()
+        oMapsuiMap = new Mapsui.Map()
         {
             CRS = "EPSG:3857", // Spherical Mercator projection
         };
@@ -75,21 +78,35 @@ public partial class MainPage : ContentPage
         if (!System.IO.File.Exists(gpxPath))
         {
             // Создаём тестовый GPX-файл
-            string gpxContent = @"<?xml version=""1.0"" encoding=""UTF-8""?>
-                <gpx version=""1.1"" creator=""Test"">
-                  <wpt lat=""51.5"" lon=""0.0"">
-                    <name>Point 1</name>
-                  </wpt>
-                  <trk>
-                    <name>Test Track</name>
-                    <trkseg>
-                      <trkpt lat=""51.5"" lon=""0.0""></trkpt>
-                      <trkpt lat=""51.6"" lon=""0.1""></trkpt>
-                    </trkseg>
-                  </trk>
-                </gpx>";
+            string gpxContent = @"<?xml version='1.0' encoding='utf-8'?>
+<ns0:gpx xmlns:ns0=""http://www.topografix.com/GPX/1/1"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" creator=""Garmin Connect"" version=""1.1"" xsi:schemaLocation=""http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/11.xsd"">
+  <ns0:metadata>
+    <ns0:name>Hiking_Warszawa-Kampinos_40km_FreeMindsWay</ns0:name>
+    <ns0:link href=""connect.garmin.com"">
+      <ns0:text>Garmin Connect</ns0:text>
+    </ns0:link>
+    <ns0:time>2025-04-21T09:55:29.000Z</ns0:time>
+  </ns0:metadata>
+  <ns0:trk>
+    <ns0:name>Hiking_Warszawa-Kampinos_40km_FreeMindsWay</ns0:name>
+    <ns0:trkseg>
+      <ns0:trkpt lat=""52.31022119522095"" lon=""20.76190710067749"">
+        <ns0:ele>86.86</ns0:ele>
+        <ns0:time>2025-04-21T09:55:29.000Z</ns0:time>
+      </ns0:trkpt>
+      <ns0:trkpt lat=""52.34967875294387"" lon=""20.303464019671082"">
+        <ns0:ele>79.66</ns0:ele>
+        <ns0:time>2025-04-21T20:33:21.080Z</ns0:time>
+      </ns0:trkpt>
+    </ns0:trkseg>
+  </ns0:trk></ns0:gpx>";
             try
             {
+                //remove old file
+                if (System.IO.File.Exists(gpxPath))
+                {
+                    System.IO.File.Delete(gpxPath);
+                }
                 await System.IO.File.WriteAllTextAsync(gpxPath, gpxContent);
             }
             catch (System.Exception ex)
@@ -101,6 +118,15 @@ public partial class MainPage : ContentPage
 
         (double minLat, double maxLat, double minLon, double maxLon) = await GetGpxBoundsAsync(gpxPath);
         await this.DisplayAlert("GPX Bounds", $"MinLat: {minLat}, MaxLat: {maxLat}, MinLon: {minLon}, MaxLon: {maxLon}", "OK");
+        if (minLat == 0 && maxLat == 0 && minLon == 0 && maxLon == 0)
+        {
+            await DisplayAlert("Ошибка", "Не удалось извлечь координаты из GPX", "OK");
+            return;
+        }
+
+
+        // Центрируем карту на регион GPX
+        CenterMapOnBounds(minLat, maxLat, minLon, maxLon);
     }
 
     /// <summary>
@@ -151,5 +177,22 @@ public partial class MainPage : ContentPage
             await this.DisplayAlert("Ошибка", $"Не удалось прочитать GPX: {ex.Message}", "OK");
             return (0, 0, 0, 0);
         }
+    }
+
+    /// <summary>
+    /// Method to center the map on the given bounds calculated area of the GPX file
+    /// </summary>
+    /// <param name="oMapsuiMap"></param>
+    /// <param name="minLat"></param>
+    /// <param name="maxLat"></param>
+    /// <param name="minLon"></param>
+    /// <param name="maxLon"></param>
+    private void CenterMapOnBounds(double minLat, double maxLat, double minLon, double maxLon)
+    {
+        var (minX, minY) = SphericalMercator.FromLonLat(minLon, maxLat);
+        var (maxX, maxY) = SphericalMercator.FromLonLat(maxLon, minLat);
+
+        oMapsuiMap.Navigator.ZoomToBox(new MRect(minX, minY, maxX, maxY)); //ADDED: to update map view immediately
+        MapViewXaml.Map.RefreshData();
     }
 }
