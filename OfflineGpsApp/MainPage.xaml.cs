@@ -27,13 +27,7 @@ public partial class MainPage : ContentPage
 
     private void SetupMap()
     {
-        //Mapsui.Tiling.OpenStreetMap.CreateTileLayer();
-        //Mapsui.Tiling.Layers.TileLayer oTileLayer = Mapsui.Tiling.OpenStreetMap.CreateTileLayer();
-
-        //using OfflineGpsApp.CodeBase.Service.LayersService;
-        //Mapsui.Tiling.Layers.TileLayer oTileLayer = new Mapsui.Tiling.Layers.TileLayer(new OpenStreetMapLocalTileSource());
-
-        Mapsui.Tiling.Layers.TileLayer oTileLayer = TileLayerFactory.CreateTileLayer(isUseOnlineTiles: true);
+        Mapsui.Tiling.Layers.TileLayer oTileLayer = TileLayerFactory.CreateTileLayer(isUseOnlineTiles: false);
 
         oMapsuiMap = new Mapsui.Map()
         {
@@ -59,18 +53,6 @@ public partial class MainPage : ContentPage
         oMapsuiMap.Home = navigator => navigator.CenterOnAndZoomTo(new Mapsui.MPoint(x, y), navigator.Resolutions[zoomlevel]);
     }
 
-    //private async void OnLoadGpxClicked(object sender, System.EventArgs e)
-    //{
-    //    string gpxPath = System.IO.Path.Combine(Microsoft.Maui.Storage.FileSystem.AppDataDirectory, "route.gpx");
-    //    if (!System.IO.File.Exists(gpxPath))
-    //    {
-    //        await DisplayAlert("Ошибка", "GPX-файл не найден", "OK");
-    //        return;
-    //    }
-
-    //    (double minLat, double maxLat, double minLon, double maxLon) = await GetGpxBoundsAsync(gpxPath);
-    //    await DisplayAlert("GPX Bounds", $"MinLat: {minLat}, MaxLat: {maxLat}, MinLon: {minLon}, MaxLon: {maxLon}", "OK");
-    //}
     private async void OnLoadGpxClicked(object sender, System.EventArgs e)
     {
         //Microsoft.Maui.Storage.FileSystem.AppDataDirectory - /data/data/com.yourapp/files/
@@ -120,7 +102,7 @@ public partial class MainPage : ContentPage
         await this.DisplayAlert("GPX Bounds", $"MinLat: {minLat}, MaxLat: {maxLat}, MinLon: {minLon}, MaxLon: {maxLon}", "OK");
         if (minLat == 0 && maxLat == 0 && minLon == 0 && maxLon == 0)
         {
-            await DisplayAlert("Ошибка", "Не удалось извлечь координаты из GPX", "OK");
+            await this.DisplayAlert("Ошибка", "Не удалось извлечь координаты из GPX", "OK");
             return;
         }
 
