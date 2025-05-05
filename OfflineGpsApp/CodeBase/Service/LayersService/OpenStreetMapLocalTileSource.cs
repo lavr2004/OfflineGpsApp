@@ -5,6 +5,7 @@
 //using nsSystemNetHttp = System.Net.Http; //ADDED: for downloading tiles
 //using nsSystemDiagnostics = System.Diagnostics; //ADDED: for logging
 
+using BruTile;
 using System.Diagnostics;
 
 namespace OfflineGpsApp.CodeBase.Service.LayersService
@@ -19,16 +20,21 @@ namespace OfflineGpsApp.CodeBase.Service.LayersService
         //ADDED: for downloading tiles
         private readonly HttpClient _httpClient;
 
-        public OpenStreetMapLocalTileSource()
+        //ADDED: xUnit: for xUnit testing on different platforms
+        private readonly string _tileCacheDirectory; //ADDED: store tile cache directory
+
+        public OpenStreetMapLocalTileSource(string tileCacheDirectory = null)
         {
             _httpClient = new HttpClient();
             _httpClient.DefaultRequestHeaders.Add("User-Agent", "OfflineGpsApp/1.0 (contact: lavr2004@gmail.com)");
+            _tileCacheDirectory = tileCacheDirectory ?? Path.Combine(FileSystem.AppDataDirectory, "tiles"); //CHANGED: xUnit: use parameter or default to AppDataDirectory
         }
 
         public async System.Threading.Tasks.Task<byte[]?> GetTileAsync(BruTile.TileInfo oTileInfo)
         {
             //path: tiles/0/0/0.png
-            System.String tilePath = System.IO.Path.Combine(FileSystem.AppDataDirectory, "tiles", oTileInfo.Index.Level.ToString(), oTileInfo.Index.Col.ToString(), $"{oTileInfo.Index.Row}.png");
+            System.String tilePath = Path.Combine(_tileCacheDirectory, "tiles", oTileInfo.Index.Level.ToString(), oTileInfo.Index.Col.ToString(), $"{oTileInfo.Index.Row}.png");//CHANGED: xUnit
+            //System.String tilePath = System.IO.Path.Combine(FileSystem.AppDataDirectory, "tiles", oTileInfo.Index.Level.ToString(), oTileInfo.Index.Col.ToString(), $"{oTileInfo.Index.Row}.png");
             System.Diagnostics.Debug.WriteLine($"OK - Checking tile at: {tilePath}"); //ADDED: for debugging tile path
 
             if (System.IO.File.Exists(tilePath))

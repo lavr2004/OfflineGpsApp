@@ -10,6 +10,7 @@ using Mapsui.Projections;
 using Mapsui.Tiling.Layers;
 using Mapsui.UI.Maui;
 using Mapsui.Layers;
+using System.Reflection.Metadata;
 //using SharpGPX;
 
 
