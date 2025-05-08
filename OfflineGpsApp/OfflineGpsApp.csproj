@@ -81,6 +81,9 @@
 
 
 	<ItemGroup>
+	  <Folder Include="CodeBase\App\MVVM\Model\" />
+	  <Folder Include="CodeBase\App\MVVM\ViewModel\" />
+	  <Folder Include="CodeBase\App\MVVM\View\" />
 	  <Folder Include="CodeBase\Libs\" />
 	</ItemGroup>
 

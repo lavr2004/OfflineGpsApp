@@ -11,8 +11,13 @@ using Mapsui.Tiling.Layers;
 using Mapsui.UI.Maui;
 using Mapsui.Layers;
 using System.Reflection.Metadata;
+using Mapsui.Extensions;
+using OfflineGpsApp.CodeBase.Services.MapsuiService.Builders;
+using Mapsui.Nts;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
+using Mapsui.Nts.Extensions;
 //using SharpGPX;
-
 
 namespace OfflineGpsApp;
 
@@ -37,6 +42,14 @@ public partial class MainPage : ContentPage
         oMapsuiMap.Layers.Add(oTileLayer);
 
         CenterMapOnPoint(oMapsuiMap, latitude: 51.5, longitude: 0);
+
+        //step 2: Add GPX layer
+        //parsing GPX file data
+        //make track from trackpoints
+        //create GPX layer
+        //set GPX layer to map
+        //show GPX layer on map
+
         MapViewXaml.Map = oMapsuiMap;
     }
 
@@ -56,6 +69,15 @@ public partial class MainPage : ContentPage
 
     private async void OnLoadGpxClicked(object sender, System.EventArgs e)
     {
+        //step 2: Add GPX layer
+        //parsing GPX file data +
+        //create GPX points bounds to center screen that part of map
+        //make track from trackpoints
+        //create GPX layer
+        //set GPX layer to map
+        //show GPX layer on map
+
+
         //Microsoft.Maui.Storage.FileSystem.AppDataDirectory - /data/data/com.yourapp/files/
         string gpxPath = System.IO.Path.Combine(Microsoft.Maui.Storage.FileSystem.AppDataDirectory, "route.gpx");
         if (!System.IO.File.Exists(gpxPath))
@@ -97,7 +119,16 @@ public partial class MainPage : ContentPage
                 await this.DisplayAlert("Ошибка", $"Не удалось создать GPX: {ex.Message}", "OK");
                 return;
             }
+
         }
+
+        //step 2: Add GPX layer
+        //parsing GPX file data +
+        //create GPX points bounds to center screen that part of map + 
+        //make track from trackpoints
+        //create GPX layer
+        //set GPX layer to map
+        //show GPX layer on map
 
         (double minLat, double maxLat, double minLon, double maxLon) = await GetGpxBoundsAsync(gpxPath);
         await this.DisplayAlert("GPX Bounds", $"MinLat: {minLat}, MaxLat: {maxLat}, MinLon: {minLon}, MaxLon: {maxLon}", "OK");
@@ -106,10 +137,58 @@ public partial class MainPage : ContentPage
             await this.DisplayAlert("Ошибка", "Не удалось извлечь координаты из GPX", "OK");
             return;
         }
-
-
         // Центрируем карту на регион GPX
         CenterMapOnBounds(minLat, maxLat, minLon, maxLon);
+
+        //step 2: Add GPX layer
+        //parsing GPX file data +
+        //create GPX points bounds to center screen that part of map + 
+        //create layer with points on map +++
+        //show up GPX layer with points +++
+        //make GPX track from trackpoints on map
+        //show up GPX track from trackpoints on map
+        //set GPX layer to map
+        //show GPX layer on map
+
+        string fileContent = await System.IO.File.ReadAllTextAsync(gpxPath);
+
+        GpxParserService oGpxParserService = new GpxParserService();
+        System.Collections.Generic.List<List<string>> AllLatLonListList = oGpxParserService.process_fc(fileContent);
+
+        IEnumerable<Mapsui.IFeature?> features = AllLatLonListList.Select(latLonList =>
+        {
+            if (latLonList.Count == 2)
+            {
+                if (double.TryParse(latLonList[0], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lat) &&
+                    double.TryParse(latLonList[1], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lon))
+                {
+                    //Mapsui.IFeature feature = new PointFeature(SphericalMercator.FromLonLat(lon, lat).ToMPoint());
+                    //feature["name"] = c.Name;
+                    return new PointFeature(SphericalMercator.FromLonLat(lon, lat).ToMPoint());
+                }
+            }
+            return null;
+        }).Where(feature => feature != null);
+
+        LayersBuilder oLayersBuilder = new LayersBuilder();
+        MemoryLayer gpxTrackPointsMemoryLayer = oLayersBuilder.CreateMemoryLayer(features, "GPXTrackPointsLayer");
+        oMapsuiMap.Layers.Add(gpxTrackPointsMemoryLayer);
+        oMapsuiMap.RefreshData();
+
+        //step 2: Add GPX layer
+        //parsing GPX file data +
+        //create GPX points bounds to center screen that part of map + 
+        //create layer with points on map +
+        //show up GPX layer with points +
+        //make GPX track from trackpoints on map +++
+        //show up GPX track from trackpoints on map +++
+        //set GPX layer to map +++
+        //show GPX layer on map +++
+
+        var lineStringLayer = oLayersBuilder.CreateLineStringLayerFromLatLonList(AllLatLonListList);
+        oMapsuiMap.Layers.Add(lineStringLayer);
+        oMapsuiMap.Home = n => n.CenterOnAndZoomTo(lineStringLayer.Extent!.Centroid, 200);
+        //oMapsuiMap.Refresh();
     }
 
     /// <summary>
@@ -129,8 +208,8 @@ public partial class MainPage : ContentPage
             // Читаем файл как строку
             string fileContent = await System.IO.File.ReadAllTextAsync(gpxPath);
 
-            GpxParserService oGpxParserService = new GpxParserService(fileContent);
-            System.Collections.Generic.List<List<string>> AllLatLonListList = oGpxParserService.AllLatLonListList;
+            GpxParserService oGpxParserService = new GpxParserService();
+            System.Collections.Generic.List<List<string>> AllLatLonListList = oGpxParserService.process_fc(fileContent);
 
             foreach (List<string> latLonList in AllLatLonListList)
             {

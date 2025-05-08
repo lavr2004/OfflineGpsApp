@@ -5,7 +5,7 @@ VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OfflineGpsApp", "OfflineGpsApp\OfflineGpsApp.csproj", "{68EBD35F-DCEC-446B-ADC8-7FD710632E82}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OfflineGpsApp.Tests", "OfflineGpsApp.Tests\OfflineGpsApp.Tests.csproj", "{8CD20290-B318-4357-8D40-B8BEC4B2F665}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OfflineGpsApp.Tests", "OfflineGpsApp.Tests\OfflineGpsApp.Tests.csproj", "{8CD20290-B318-4357-8D40-B8BEC4B2F665}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

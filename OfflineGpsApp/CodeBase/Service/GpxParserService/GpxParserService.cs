@@ -1,4 +1,5 @@
 ﻿using HammerParserLibrary;
+using System.Globalization;
 
 namespace OfflineGpsApp.CodeBase.Service.GpxParserService
 {
@@ -6,17 +7,11 @@ namespace OfflineGpsApp.CodeBase.Service.GpxParserService
     {
         public System.Collections.Generic.List<List<string>> AllLatLonListList;
         HammerParser oHammerParser = new HammerParser();
-        public GpxParserService(string input_str)
+        public GpxParserService()
         {
-            // Constructor logic if required
-            if (string.IsNullOrWhiteSpace(input_str))
-            {
-                throw new ArgumentException("ER - GPX content cannot be empty");
-            }
-            process_fc(input_str);
         }
 
-        private void process_fc(string input_str)
+        public System.Collections.Generic.List<List<string>> process_fc(string input_str)
         {
             HammerParserConfig snippetsParsingConfig = new HammerParserConfig();
             HammerParserConfig valuesParsingConfig = new HammerParserConfig();
@@ -35,7 +30,54 @@ namespace OfflineGpsApp.CodeBase.Service.GpxParserService
 
             //parsing process
             AllLatLonListList = oHammerParser.process_fc(input_str);
+            return AllLatLonListList;
+        }
 
+        /// <summary>
+        /// Provide safe parsing GPX data from input string to List of tuples (Lattitude, Longitude)
+        /// </summary>
+        /// <param name="input_str"></param>
+        /// <returns>List of tuples with latitude and longitude doubles</returns>
+        public List<(System.Double Lattitude, System.Double Longitude)> process_parseTrackPointsGpxToTupleList_fc(string input_str)
+        {
+            process_fc(input_str);
+
+            List<(System.Double Lattitude, System.Double Longitude)> LanLonTupleList = new List<(System.Double Lattitude, System.Double Longitude)>();
+            if (AllLatLonListList.Count == 0)
+            {
+                System.Diagnostics.Debug.WriteLine("ER - No points found in GPX file.");
+                return LanLonTupleList;
+            }
+
+            string lat, lon;
+            foreach (List<string> latlonlist in AllLatLonListList)
+            {
+                if (latlonlist.Count == 2)
+                {
+                    lat = latlonlist[0];
+                    lon = latlonlist[1];
+
+                    if (string.IsNullOrWhiteSpace(lat) || string.IsNullOrWhiteSpace(lon))
+                    {
+                        System.Diagnostics.Debug.WriteLine($"ER - Invalid lat/lon pair - values problem - {latlonlist}");
+                        continue;
+                    }
+
+                    lat = lat.Replace(',', '.').Trim();
+                    lon = lon.Replace(',', '.').Trim();
+
+                    if (Double.TryParse(lat, NumberStyles.Any, CultureInfo.InvariantCulture, out System.Double lattitude) && Double.TryParse(lon, NumberStyles.Any, CultureInfo.InvariantCulture, out System.Double longitude))
+                    {
+                        LanLonTupleList.Add((lattitude, longitude));
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"ER - Invalid lat/lon pair - count problem - {latlonlist}");
+                }
+            }
+
+            return LanLonTupleList;
         }
     }
 }
