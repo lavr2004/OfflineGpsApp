@@ -5,11 +5,9 @@ using Mapsui.Nts.Extensions;
 using Mapsui.Projections;
 using Mapsui.Providers;
 using Mapsui.Styles;
+
 using NetTopologySuite.Geometries;
-
 using NetTopologySuite.IO;
-
-//using OfflineGpsApp.CodeBase.Services.MapsuiService.Models;
 
 using nsMapsuiService = OfflineGpsApp.CodeBase.Services.MapsuiService;
 namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Builders;
