@@ -49,7 +49,7 @@ public class FeaturesBuilder
     /// </summary>
     /// <param name="oMapsuiPointClass">universal data class used in MapsuiService</param>
     /// <returns></returns>
-    public static IFeature CreateFeatureFromMapsuiPointClass(MapsuiPointClass oMapsuiPointClass)
+    public static IFeature CreateFeatureFromMapsuiPointClass(MapsuiServicePointModel oMapsuiPointClass)
     {
         //MapsuiPointClass keeps GPS coordinates in EPSG:4326 - that it is x, y
         Mapsui.IFeature feature = CreateFeatureFromGpsCoordinates(oMapsuiPointClass.Latitude, oMapsuiPointClass.Longitude);
@@ -70,7 +70,7 @@ public class FeaturesBuilder
     }
 
     //todo: create a new pin on the map with specific style
-    public static IFeature CreateFeatureOnTheMapWithSpecificStyle(MapsuiPointClass oMapsuiPointClass)
+    public static IFeature CreateFeatureOnTheMapWithSpecificStyle(MapsuiServicePointModel oMapsuiPointClass)
     {
         return CreateFeatureFromMapsuiPointClass(oMapsuiPointClass);
     }

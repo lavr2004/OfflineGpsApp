@@ -3,7 +3,7 @@
     /// <summary>
     /// Class that represents a point on the map
     /// </summary>
-    public class MapsuiPointClass
+    public class MapsuiServicePointModel
     {
         public double Latitude { get; set; }
         public double Longitude { get; set; }
@@ -17,7 +17,7 @@
 
         public bool IsOk { get; set; } = true;
 
-        public MapsuiPointClass(double latitude, double longitude)
+        public MapsuiServicePointModel(double latitude, double longitude)
         {
             Latitude = latitude;
             Longitude = longitude;

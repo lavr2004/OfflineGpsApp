@@ -18,7 +18,7 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Builders;
 /// <param name="feature"></param>
 /// <param name="oMapsuiPointClass"></param>
 /// <returns></returns>
-public delegate Mapsui.IFeature AddPropertiesToFeatureDelegate(Mapsui.IFeature feature, nsMapsuiService.Models.MapsuiPointClass oMapsuiPointClass);
+public delegate Mapsui.IFeature AddPropertiesToFeatureDelegate(Mapsui.IFeature feature, nsMapsuiService.Models.MapsuiServicePointModel oMapsuiPointClass);
 
 /// <summary>
 /// Creating layers for map
@@ -34,7 +34,7 @@ public class LayersBuilder
     /// </summary>
     /// <param name="oMapsuiPointClassList"></param>
     /// <returns></returns>
-    public Mapsui.Layers.MemoryLayer CreateMapsuiPointsLayer(IEnumerable<nsMapsuiService.Models.MapsuiPointClass> oMapsuiPointClassList, AddPropertiesToFeatureDelegate? addPropsToFeatureMethod = null, bool isNewPinJustCreated = false)
+    public Mapsui.Layers.MemoryLayer CreateMapsuiPointsLayer(IEnumerable<nsMapsuiService.Models.MapsuiServicePointModel> oMapsuiPointClassList, AddPropertiesToFeatureDelegate? addPropsToFeatureMethod = null, bool isNewPinJustCreated = false)
     {
         string calloutContent;
         //conversion markers list into features on the map
@@ -64,13 +64,6 @@ public class LayersBuilder
             return oIFeature;
         });
 
-
-/* Unmerged change from project 'OfflineGpsApp (net8.0-windows10.0.19041.0)'
-Before:
-        OTaskModelsMemoryLayer = CreateMemoryLayer(oPointFeatures, OfflineGpsApp.CodeBase.Settings.GlobalSettings.TaskModelsLayerTitle);
-After:
-        OTaskModelsMemoryLayer = CreateMemoryLayer(oPointFeatures, GlobalSettings.TaskModelsLayerTitle);
-*/
         OTaskModelsMemoryLayer = CreateMemoryLayer(oPointFeatures, nsMapsuiService.Settings.MapsuiServiceSettings.TaskModelsLayerTitle);
 
         return OTaskModelsMemoryLayer;
@@ -93,7 +86,7 @@ After:
         };
     }
 
-    public void UpdateLayerWithNewMapsuiPointModels(Mapsui.Map oMapsuiMap, string oNameLayerToUpdate, List<nsMapsuiService.Models.MapsuiPointClass> oMapsuiPointClassList)
+    public void UpdateLayerWithNewMapsuiPointModels(Mapsui.Map oMapsuiMap, string oNameLayerToUpdate, List<nsMapsuiService.Models.MapsuiServicePointModel> oMapsuiPointClassList)
     {
         if (oMapsuiPointClassList.Count == 0) return;
 
@@ -120,7 +113,7 @@ After:
         oMapsuiMap.Layers.Add(newLayer);
     }
 
-    public void AddPointToExistingLayer(Mapsui.Map map, nsMapsuiService.Models.MapsuiPointClass newMapsuiPoint, string layerName)
+    public void AddPointToExistingLayer(Mapsui.Map map, nsMapsuiService.Models.MapsuiServicePointModel newMapsuiPoint, string layerName)
     {
         // Search via existing layers by name
         var existingLayer = map.Layers.FirstOrDefault(layer => layer.Name == layerName) as MemoryLayer;

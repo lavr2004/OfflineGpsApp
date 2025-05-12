@@ -10,7 +10,7 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Builders
     /// </summary>
     public class GPXTrackBuilder
     {
-        MapsuiTrackClass oMapsuiTrackClass = new MapsuiTrackClass();
+        MapsuiServiceTrackModel oMapsuiTrackClass = new MapsuiServiceTrackModel();
 
         public GPXTrackBuilder(string gpxFilePath)
         {
@@ -47,7 +47,7 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Builders
                     //convert lat/lon values to double
                     if (Double.TryParse(lat, NumberStyles.Any, CultureInfo.InvariantCulture, out System.Double lattitude) && Double.TryParse(lon, NumberStyles.Any, CultureInfo.InvariantCulture, out System.Double longitude))
                     {
-                        MapsuiPointClass mapsuiPoint = new MapsuiPointClass(lattitude, longitude);
+                        MapsuiServicePointModel mapsuiPoint = new MapsuiServicePointModel(lattitude, longitude);
                         mapsuiPoint.Title = $"Point {i + 1}";
                         oMapsuiTrackClass.AddPointToTrack(mapsuiPoint);
                     }

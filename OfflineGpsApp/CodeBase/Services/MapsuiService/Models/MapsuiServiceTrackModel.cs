@@ -9,20 +9,20 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Models
     /// <summary>
     /// Class that represents a track on the map
     /// </summary>
-    public class MapsuiTrackClass
+    public class MapsuiServiceTrackModel
     {
-        List<MapsuiPointClass> oMapsuiPointClassList;
+        List<MapsuiServicePointModel> oMapsuiPointClassList;
 
-        public List<MapsuiPointClass> OMapsuiPointClassList
+        public List<MapsuiServicePointModel> OMapsuiPointClassList
         {
             get { return oMapsuiPointClassList; }
         }
 
-        public MapsuiTrackClass(List<MapsuiPointClass> oMapsuiPointClassList = null)
+        public MapsuiServiceTrackModel(List<MapsuiServicePointModel> oMapsuiPointClassList = null)
         {
             if (oMapsuiPointClassList == null)
             {
-                oMapsuiPointClassList = new List<MapsuiPointClass>();
+                oMapsuiPointClassList = new List<MapsuiServicePointModel>();
             }
             else
             {
@@ -30,7 +30,7 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Models
             }
         }
 
-        public void AddPointToTrack(MapsuiPointClass oMapsuiPointClass)
+        public void AddPointToTrack(MapsuiServicePointModel oMapsuiPointClass)
         {
             oMapsuiPointClassList.Add(oMapsuiPointClass);
         }

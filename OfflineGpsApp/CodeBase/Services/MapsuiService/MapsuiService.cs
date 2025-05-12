@@ -28,7 +28,7 @@ public class MapsuiService
     }
 
 
-    public async Task<Mapsui.Map> CreateMapAsync(List<nsMapsuiService.Models.MapsuiPointClass>? oModelList = null)
+    public async Task<Mapsui.Map> CreateMapAsync(List<nsMapsuiService.Models.MapsuiServicePointModel>? oModelList = null)
     {
         if (oModelList == null || oModelList.Count == 0) isMapEmpty = true;
         if (!IsMapInitialized)
@@ -52,7 +52,7 @@ public class MapsuiService
         return OMapsuiMap;
     }
 
-    public async Task<Mapsui.Map> RefreshMapAsync(List<nsMapsuiService.Models.MapsuiPointClass>? oModelList = null)
+    public async Task<Mapsui.Map> RefreshMapAsync(List<nsMapsuiService.Models.MapsuiServicePointModel>? oModelList = null)
     {
         if (oModelList == null || oModelList.Count == 0)
         {
@@ -70,14 +70,14 @@ public class MapsuiService
         return OMapsuiMap;
     }
 
-    public async Task<Mapsui.Map> CreateMapAsync(nsMapsuiService.Models.MapsuiPointClass oMapsuiPointClass)
+    public async Task<Mapsui.Map> CreateMapAsync(nsMapsuiService.Models.MapsuiServicePointModel oMapsuiPointClass)
     {
         if (!IsMapInitialized)
         {
             TileLayer osmTileLayer = Mapsui.Tiling.OpenStreetMap.CreateTileLayer();
             OMapsuiMap.Layers.Add(osmTileLayer);
 
-            MemoryLayer oMemoryLayer = oLayersBuilder.CreateMapsuiPointsLayer(new List<nsMapsuiService.Models.MapsuiPointClass> { oMapsuiPointClass });
+            MemoryLayer oMemoryLayer = oLayersBuilder.CreateMapsuiPointsLayer(new List<nsMapsuiService.Models.MapsuiServicePointModel> { oMapsuiPointClass });
             OMapsuiMap.Layers.Add(oMemoryLayer);
 
             //todo: to define that like async call or dont?
@@ -147,7 +147,7 @@ public class MapsuiService
         };
     }
 
-    public void AddNewTaskModelOnMap(nsMapsuiService.Models.MapsuiPointClass oModel, string oLayerName)
+    public void AddNewTaskModelOnMap(nsMapsuiService.Models.MapsuiServicePointModel oModel, string oLayerName)
     {
         oLayersBuilder.AddPointToExistingLayer(OMapsuiMap, oModel, oLayerName);
     }

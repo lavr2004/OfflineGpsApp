@@ -8,9 +8,9 @@ using Moq;
 using Moq.Protected;
 using Xunit;
 
-using nsGpxParserService = OfflineGpsApp.CodeBase.Service.GpxParserService;
+using nsGpxParserService = OfflineGpsApp.CodeBase.Services.GpxParserService;
 
-namespace OfflineGpsApp.Tests.CodeBase.Service.GpxParserService
+namespace OfflineGpsApp.Tests.CodeBase.Services.GpxParserService
 {
     public class GpxParserServiceTests
     {

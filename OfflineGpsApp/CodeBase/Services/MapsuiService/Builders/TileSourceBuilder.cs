@@ -1,9 +1,16 @@
 ﻿using BruTile;
 using Mapsui.Tiling.Layers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace OfflineGpsApp.CodeBase.Service.LayersService
+using OfflineGpsApp.CodeBase.Services.MapsuiService.Models;
+
+namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Builders
 {
-    public static class TileLayerFactory
+    public class TileSourceBuilder
     {
         public static TileLayer CreateTileLayer(bool isUseOnlineTiles)
         {
@@ -16,7 +23,7 @@ namespace OfflineGpsApp.CodeBase.Service.LayersService
             }
             else
             {
-                ITileSource oITileSource = new OpenStreetMapLocalTileSource();
+                ITileSource oITileSource = new MapsuiServiceLocalTileSourceModel();
                 oTileLayer = new TileLayer(oITileSource);
                 oTileLayer.Name = "Local OSM Tiles";
             }

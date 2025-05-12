@@ -32,4 +32,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="CodeBase\Services\MapsuiService\Settings\" />
+  </ItemGroup>
+
 </Project>

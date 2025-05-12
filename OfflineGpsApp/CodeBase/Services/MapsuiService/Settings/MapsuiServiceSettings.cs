@@ -42,11 +42,11 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Settings
             set { _lastDateTime = value; }
         }
 
-        public static List<MapsuiPointClass> GetInitialMapsuiPointList()
+        public static List<MapsuiServicePointModel> GetInitialMapsuiPointList()
         {
-            return new List<MapsuiPointClass>()
+            return new List<MapsuiServicePointModel>()
             {
-                new MapsuiPointClass(52.231, 21.001)
+                new MapsuiServicePointModel(52.231, 21.001)
                 {
                     Title = "Warsaw",
                     IconPath = "pin.png",
@@ -57,7 +57,7 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Settings
                     IsOk = true
 
                 },
-                new MapsuiPointClass(53.893009, 27.567444){
+                new MapsuiServicePointModel(53.893009, 27.567444){
                     Title = "Minsk",
                     IconPath = "pin.png",
                     IconName = "pin.png",

@@ -1,16 +1,15 @@
-﻿//using nsBruTilePredefined = BruTile.Predefined;
-//using nsBrutile = BruTile;
-
-//using nsMapsuiStyles = Mapsui.Styles; //ADDED: for Mapsui Attribution
-//using nsSystemNetHttp = System.Net.Http; //ADDED: for downloading tiles
-//using nsSystemDiagnostics = System.Diagnostics; //ADDED: for logging
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 using BruTile;
 using System.Diagnostics;
 
-namespace OfflineGpsApp.CodeBase.Service.LayersService
+namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Models
 {
-    public class OpenStreetMapLocalTileSource : BruTile.ITileSource//BruTile
+    public class MapsuiServiceLocalTileSourceModel : BruTile.ITileSource//BruTile
     {
         //BruTile.ITileSource interface requirements that TileLayer needs to implement
         public BruTile.ITileSchema Schema { get; } = new BruTile.Predefined.GlobalSphericalMercator();
@@ -23,7 +22,7 @@ namespace OfflineGpsApp.CodeBase.Service.LayersService
         //ADDED: xUnit: for xUnit testing on different platforms
         private readonly string _tileCacheDirectory; //ADDED: store tile cache directory
 
-        public OpenStreetMapLocalTileSource(string tileCacheDirectory = null)
+        public MapsuiServiceLocalTileSourceModel(string tileCacheDirectory = null)
         {
             _httpClient = new HttpClient();
             _httpClient.DefaultRequestHeaders.Add("User-Agent", "OfflineGpsApp/1.0 (contact: lavr2004@gmail.com)");

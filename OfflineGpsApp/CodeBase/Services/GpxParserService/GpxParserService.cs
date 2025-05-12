@@ -1,7 +1,7 @@
 ﻿using HammerParserLibrary;
 using System.Globalization;
 
-namespace OfflineGpsApp.CodeBase.Service.GpxParserService
+namespace OfflineGpsApp.CodeBase.Services.GpxParserService
 {
     public class GpxParserService
     {
