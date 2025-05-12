@@ -1,4 +1,9 @@
-﻿namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Models
+﻿using Mapsui.Extensions;
+using Mapsui.Layers;
+using Mapsui.Projections;
+using Microsoft.Maui.Controls;
+
+namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Models
 {
     /// <summary>
     /// Class that represents a point on the map
@@ -23,5 +28,26 @@
             Longitude = longitude;
         }
 
+        public MapsuiServicePointModel(string latitude, string longitude)
+        {
+            if (double.TryParse(latitude, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lat) &&
+             double.TryParse(longitude, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lon))
+            {
+                Latitude = lat;
+                Longitude = lon;
+            }
+            else
+            {
+                throw new ArgumentException("Invalid latitude or longitude format");
+            }
+        }
+
+        public Mapsui.IFeature ToMapsuiFeature()
+        {
+            //.ToMPoint() - is Mapsui.Extensions method
+            //Mapsui.IFeature feature = new PointFeature(SphericalMercator.FromLonLat(lon, lat).ToMPoint());
+            //feature["name"] = c.Name;
+            return new PointFeature(SphericalMercator.FromLonLat(this.Longitude, this.Latitude).ToMPoint());
+        }
     }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 using OfflineGpsApp.CodeBase.Services.MapsuiService.Models;
 
-namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Builders
+namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Builders.TileSourceBuilder
 {
     public class TileSourceBuilder
     {

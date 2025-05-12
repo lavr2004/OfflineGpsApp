@@ -6,7 +6,7 @@ using OfflineGpsApp.CodeBase.Services.MapsuiService.Models;
 using OfflineGpsApp.CodeBase.Services.MapsuiService.Settings;
 //using OfflineGpsApp.CodeBase.MVVM.Model;
 
-namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Builders;
+namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Builders.FeaturesBuilder;
 
 /// <summary>
 /// This class is used to create Mapsui.IFeature objects for the map based on the coordinates provided.
@@ -39,7 +39,7 @@ public class FeaturesBuilder
     public static IFeature CreateFeatureFromEPSG3857Coordinates(double MercatorLatitude, double MercatorLongitude)
     {
         //Create EPSG:4326 Map Point from GPS coordinates (EPSG:3857)
-        Mapsui.MPoint oMPoint = new Mapsui.MPoint(x: MercatorLatitude, y: MercatorLongitude);
+        MPoint oMPoint = new MPoint(x: MercatorLatitude, y: MercatorLongitude);
         var feature = new PointFeature(oMPoint);
         return feature;
     }
@@ -52,7 +52,7 @@ public class FeaturesBuilder
     public static IFeature CreateFeatureFromMapsuiPointClass(MapsuiServicePointModel oMapsuiPointClass)
     {
         //MapsuiPointClass keeps GPS coordinates in EPSG:4326 - that it is x, y
-        Mapsui.IFeature feature = CreateFeatureFromGpsCoordinates(oMapsuiPointClass.Latitude, oMapsuiPointClass.Longitude);
+        IFeature feature = CreateFeatureFromGpsCoordinates(oMapsuiPointClass.Latitude, oMapsuiPointClass.Longitude);
 
         if (oMapsuiPointClass.Title.Length > MapsuiServiceSettings.CalloutTitleLengthMax)
         {

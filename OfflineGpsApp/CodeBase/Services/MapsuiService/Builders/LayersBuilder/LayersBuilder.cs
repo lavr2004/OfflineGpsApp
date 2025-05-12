@@ -8,9 +8,11 @@ using Mapsui.Styles;
 
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
-
+using OfflineGpsApp.CodeBase.Services.MapsuiService.Models;
 using nsMapsuiService = OfflineGpsApp.CodeBase.Services.MapsuiService;
-namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Builders;
+
+
+namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Builders.LayersBuilder;
 
 /// <summary>
 /// Delegate for adding properties to a feature on Callout
@@ -18,7 +20,7 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Builders;
 /// <param name="feature"></param>
 /// <param name="oMapsuiPointClass"></param>
 /// <returns></returns>
-public delegate Mapsui.IFeature AddPropertiesToFeatureDelegate(Mapsui.IFeature feature, nsMapsuiService.Models.MapsuiServicePointModel oMapsuiPointClass);
+public delegate Mapsui.IFeature AddPropertiesToFeatureDelegate(Mapsui.IFeature feature, Models.MapsuiServicePointModel oMapsuiPointClass);
 
 /// <summary>
 /// Creating layers for map
@@ -26,7 +28,7 @@ public delegate Mapsui.IFeature AddPropertiesToFeatureDelegate(Mapsui.IFeature f
 /// </summary>
 public class LayersBuilder
 {
-    public Mapsui.Layers.MemoryLayer OTaskModelsMemoryLayer { get; set; } = new Mapsui.Layers.MemoryLayer();
+    public MemoryLayer OTaskModelsMemoryLayer { get; set; } = new MemoryLayer();
 
 
     /// <summary>
@@ -34,7 +36,7 @@ public class LayersBuilder
     /// </summary>
     /// <param name="oMapsuiPointClassList"></param>
     /// <returns></returns>
-    public Mapsui.Layers.MemoryLayer CreateMapsuiPointsLayer(IEnumerable<nsMapsuiService.Models.MapsuiServicePointModel> oMapsuiPointClassList, AddPropertiesToFeatureDelegate? addPropsToFeatureMethod = null, bool isNewPinJustCreated = false)
+    public MemoryLayer CreateMapsuiPointsLayer(IEnumerable<Models.MapsuiServicePointModel> oMapsuiPointClassList, AddPropertiesToFeatureDelegate? addPropsToFeatureMethod = null, bool isNewPinJustCreated = false)
     {
         string calloutContent;
         //conversion markers list into features on the map
@@ -44,12 +46,12 @@ public class LayersBuilder
 
             if (!isNewPinJustCreated)
             {
-                oIFeature = FeaturesBuilder.CreateFeatureFromMapsuiPointClass(oMapsuiPointClass);
+                oIFeature = nsMapsuiService.Builders.FeaturesBuilder.FeaturesBuilder.CreateFeatureFromMapsuiPointClass(oMapsuiPointClass);
             }
             else
             {
                 //todo: create a new pin on the map with specific style
-                oIFeature = FeaturesBuilder.CreateFeatureFromMapsuiPointClass(oMapsuiPointClass);
+                oIFeature = nsMapsuiService.Builders.FeaturesBuilder.FeaturesBuilder.CreateFeatureFromMapsuiPointClass(oMapsuiPointClass);
             }
 
 
@@ -60,11 +62,11 @@ public class LayersBuilder
 
             //add callout style to the feature
             calloutContent = Mapsui.Extensions.FeatureExtensions.ToStringOfKeyValuePairs(oIFeature);
-            oIFeature.Styles.Add(StylesBuilder.CreatePinCalloutStyle(calloutContent));
+            oIFeature.Styles.Add(nsMapsuiService.Builders.StylesBuilder.StylesBuilder.CreatePinCalloutStyle(calloutContent));
             return oIFeature;
         });
 
-        OTaskModelsMemoryLayer = CreateMemoryLayer(oPointFeatures, nsMapsuiService.Settings.MapsuiServiceSettings.TaskModelsLayerTitle);
+        OTaskModelsMemoryLayer = CreateMemoryLayer(oPointFeatures, Settings.MapsuiServiceSettings.TaskModelsLayerTitle);
 
         return OTaskModelsMemoryLayer;
     }
@@ -74,19 +76,19 @@ public class LayersBuilder
     /// </summary>
     /// <param name="oPointFeatures"></param>
     /// <returns></returns>
-    public Mapsui.Layers.MemoryLayer CreateMemoryLayer(IEnumerable<Mapsui.IFeature?> oPointFeatures, string layerTitle)
+    public MemoryLayer CreateMemoryLayer(IEnumerable<Mapsui.IFeature?> oPointFeatures, string layerTitle)
     {
         if (oPointFeatures == null || oPointFeatures.Count() == 0) throw new ArgumentException("ER - oPointFeatures is null or empty");
-        return new Mapsui.Layers.MemoryLayer()
+        return new MemoryLayer()
         {
             Name = layerTitle,//"MarkersLayer",
             IsMapInfoLayer = true,
             Features = new MemoryProvider(oPointFeatures).Features,
-            Style = StylesBuilder.CreatePinStyle(),//create style for every pin on layer
+            Style = nsMapsuiService.Builders.StylesBuilder.StylesBuilder.CreatePinStyle(),//create style for every pin on layer
         };
     }
 
-    public void UpdateLayerWithNewMapsuiPointModels(Mapsui.Map oMapsuiMap, string oNameLayerToUpdate, List<nsMapsuiService.Models.MapsuiServicePointModel> oMapsuiPointClassList)
+    public void UpdateLayerWithNewMapsuiPointModels(Mapsui.Map oMapsuiMap, string oNameLayerToUpdate, List<Models.MapsuiServicePointModel> oMapsuiPointClassList)
     {
         if (oMapsuiPointClassList.Count == 0) return;
 
@@ -113,7 +115,7 @@ public class LayersBuilder
         oMapsuiMap.Layers.Add(newLayer);
     }
 
-    public void AddPointToExistingLayer(Mapsui.Map map, nsMapsuiService.Models.MapsuiServicePointModel newMapsuiPoint, string layerName)
+    public void AddPointToExistingLayer(Mapsui.Map map, Models.MapsuiServicePointModel newMapsuiPoint, string layerName)
     {
         // Search via existing layers by name
         var existingLayer = map.Layers.FirstOrDefault(layer => layer.Name == layerName) as MemoryLayer;
@@ -126,7 +128,7 @@ public class LayersBuilder
         var existingFeatures = existingLayer.Features.ToList();
 
         // Creating a new feature from the new MapsuiPointClass
-        var newFeature = FeaturesBuilder.CreateFeatureFromMapsuiPointClass(newMapsuiPoint);
+        var newFeature = nsMapsuiService.Builders.FeaturesBuilder.FeaturesBuilder.CreateFeatureFromMapsuiPointClass(newMapsuiPoint);
 
         // Adding new feature to list
         existingFeatures.Add(newFeature);
@@ -138,17 +140,33 @@ public class LayersBuilder
         map.RefreshData();
     }
 
-    public Mapsui.Layers.ILayer CreateLineStringLayerFromLatLonList(List<List<string>> latLonListList)
+    public ILayer CreateLineStringLayerFromLatLonList(List<List<string>> latLonListList)
     {
         //var lineString = (LineString)new WKTReader().Read(WKTGr5);
         //lineString = new LineString(lineString.Coordinates.Select(v => SphericalMercator.FromLonLat(v.Y, v.X).ToCoordinate()).ToArray());
 
-        NetTopologySuite.Geometries.LineString linestring = new NetTopologySuite.Geometries.LineString(latLonListList.Select(v => SphericalMercator.FromLonLat(double.Parse(v[1]), double.Parse(v[0])).ToCoordinate()).ToArray());
+        LineString linestring = new LineString(latLonListList.Select(v => SphericalMercator.FromLonLat(double.Parse(v[1]), double.Parse(v[0])).ToCoordinate()).ToArray());
 
         return new MemoryLayer
         {
             Features = new[] { new GeometryFeature { Geometry = linestring } },
             Name = "LineStringLayer",
+            Style = CreateLineStringStyle()
+
+        };
+    }
+
+    public ILayer CreateLineStringLayerFromMapsuiServicePointModelList(List<MapsuiServicePointModel> oMapsuiServicePointModelList, string LayerTitle)
+    {
+        //var lineString = (LineString)new WKTReader().Read(WKTGr5);
+        //lineString = new LineString(lineString.Coordinates.Select(v => SphericalMercator.FromLonLat(v.Y, v.X).ToCoordinate()).ToArray());
+
+        NetTopologySuite.Geometries.LineString oLineString = new LineString(oMapsuiServicePointModelList.Select(v => SphericalMercator.FromLonLat(v.Longitude, v.Latitude).ToCoordinate()).ToArray());
+
+        return new MemoryLayer
+        {
+            Features = new[] { new GeometryFeature { Geometry = oLineString } },
+            Name = LayerTitle,//"LineStringLayer"
             Style = CreateLineStringStyle()
 
         };

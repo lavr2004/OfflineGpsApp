@@ -14,9 +14,10 @@ using Mapsui.Nts;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Mapsui.Nts.Extensions;
-
-using OfflineGpsApp.CodeBase.Services.MapsuiService.Builders;
 using OfflineGpsApp.CodeBase.Services.GpxParserService;
+using OfflineGpsApp.CodeBase.Services.MapsuiService;
+using OfflineGpsApp.CodeBase.Services.MapsuiService.Models;
+using OfflineGpsApp.CodeBase.Services.MapsuiService.Builders.GpxTrackBuilder;
 
 namespace OfflineGpsApp;
 
@@ -32,7 +33,7 @@ public partial class MainPage : ContentPage
 
     private void SetupMap()
     {
-        Mapsui.Tiling.Layers.TileLayer oTileLayer = TileSourceBuilder.CreateTileLayer(isUseOnlineTiles: false);
+        Mapsui.Tiling.Layers.TileLayer oTileLayer = OfflineGpsApp.CodeBase.Services.MapsuiService.Builders.TileSourceBuilder.TileSourceBuilder.CreateTileLayer(isUseOnlineTiles: false);
 
         oMapsuiMap = new Mapsui.Map()
         {
@@ -89,51 +90,6 @@ public partial class MainPage : ContentPage
             return;
         }
 
-
-        //Microsoft.Maui.Storage.FileSystem.AppDataDirectory - /data/data/com.yourapp/files/
-        //        string gpxPath = System.IO.Path.Combine(Microsoft.Maui.Storage.FileSystem.AppDataDirectory, "route.gpx");
-        //        if (!System.IO.File.Exists(gpxPath))
-        //        {
-        //            // Создаём тестовый GPX-файл
-        //            gpxContent = @"<?xml version='1.0' encoding='utf-8'?>
-        //<ns0:gpx xmlns:ns0=""http://www.topografix.com/GPX/1/1"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" creator=""Garmin Connect"" version=""1.1"" xsi:schemaLocation=""http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/11.xsd"">
-        //  <ns0:metadata>
-        //    <ns0:name>Hiking_Warszawa-Kampinos_40km_FreeMindsWay</ns0:name>
-        //    <ns0:link href=""connect.garmin.com"">
-        //      <ns0:text>Garmin Connect</ns0:text>
-        //    </ns0:link>
-        //    <ns0:time>2025-04-21T09:55:29.000Z</ns0:time>
-        //  </ns0:metadata>
-        //  <ns0:trk>
-        //    <ns0:name>Hiking_Warszawa-Kampinos_40km_FreeMindsWay</ns0:name>
-        //    <ns0:trkseg>
-        //      <ns0:trkpt lat=""52.31022119522095"" lon=""20.76190710067749"">
-        //        <ns0:ele>86.86</ns0:ele>
-        //        <ns0:time>2025-04-21T09:55:29.000Z</ns0:time>
-        //      </ns0:trkpt>
-        //      <ns0:trkpt lat=""52.34967875294387"" lon=""20.303464019671082"">
-        //        <ns0:ele>79.66</ns0:ele>
-        //        <ns0:time>2025-04-21T20:33:21.080Z</ns0:time>
-        //      </ns0:trkpt>
-        //    </ns0:trkseg>
-        //  </ns0:trk></ns0:gpx>";
-        //            try
-        //            {
-        //                //remove old file
-        //                if (System.IO.File.Exists(gpxPath))
-        //                {
-        //                    System.IO.File.Delete(gpxPath);
-        //                }
-        //                await System.IO.File.WriteAllTextAsync(gpxPath, gpxContent);
-        //            }
-        //            catch (System.Exception ex)
-        //            {
-        //                await this.DisplayAlert("Ошибка", $"Не удалось создать GPX: {ex.Message}", "OK");
-        //                return;
-        //            }
-
-        //        }
-
         //step 2: Add GPX layer
         //parsing GPX file data +
         //create GPX points bounds to center screen that part of map + 
@@ -143,13 +99,24 @@ public partial class MainPage : ContentPage
         //show GPX layer on map
 
         //(double minLat, double maxLat, double minLon, double maxLon) = await GetGpxBoundsAsync(gpxPath);
-        (double minLat, double maxLat, double minLon, double maxLon) = await GetGpxBoundsAsync(gpxContent);
+        GpxParserService oGpxParserService = new GpxParserService();
+        //System.Collections.Generic.List<List<string>> AllLatLonListList = oGpxParserService.process_parse_trackpoints_from_gpx(gpxContent);
+        System.Collections.Generic.List<MapsuiServicePointModel> trackpointsMapsuiServicePointModelList = oGpxParserService.process_parse_trackpoints_from_gpx(gpxContent);
+        //System.Collections.Generic.List<MapsuiServicePointModel> waypointsMapsuiServicePointModelList = oGpxParserService.process_parse_waypoints_from_gpx(gpxContent);
+        System.Collections.Generic.List<MapsuiServicePointModel> waypointsMapsuiServicePointModelList = new();
+        waypointsMapsuiServicePointModelList.Add(trackpointsMapsuiServicePointModelList[50]);
+        waypointsMapsuiServicePointModelList.Add(trackpointsMapsuiServicePointModelList[100]);
+
+
+        //(double minLat, double maxLat, double minLon, double maxLon) = await GetGpxBoundsAsync(gpxContent);
+        (double minLat, double maxLat, double minLon, double maxLon) = await GpxTrackBuilderHelper.GetGpxBoundsAsync(trackpointsMapsuiServicePointModelList);
         await this.DisplayAlert("GPX Bounds", $"MinLat: {minLat}, MaxLat: {maxLat}, MinLon: {minLon}, MaxLon: {maxLon}", "OK");
         if (minLat == 0 && maxLat == 0 && minLon == 0 && maxLon == 0)
         {
             await this.DisplayAlert("Ошибка", "Не удалось извлечь координаты из GPX", "OK");
             return;
         }
+
         // Центрируем карту на регион GPX
         CenterMapOnBounds(minLat, maxLat, minLon, maxLon);
 
@@ -165,25 +132,32 @@ public partial class MainPage : ContentPage
 
         //string fileContent = await System.IO.File.ReadAllTextAsync(gpxPath);
 
-        GpxParserService oGpxParserService = new GpxParserService();
-        System.Collections.Generic.List<List<string>> AllLatLonListList = oGpxParserService.process_fc(gpxContent);
 
-        IEnumerable<Mapsui.IFeature?> features = AllLatLonListList.Select(latLonList =>
+        //conversion into features on the map
+        //IEnumerable<Mapsui.IFeature?> features = AllLatLonListList.Select(latLonList =>
+        //{
+        //    if (latLonList.Count == 2)
+        //    {
+        //        if (double.TryParse(latLonList[0], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lat) &&
+        //            double.TryParse(latLonList[1], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lon))
+        //        {
+        //            //Mapsui.IFeature feature = new PointFeature(SphericalMercator.FromLonLat(lon, lat).ToMPoint());
+        //            //feature["name"] = c.Name;
+        //            return new PointFeature(SphericalMercator.FromLonLat(lon, lat).ToMPoint());
+        //        }
+        //    }
+        //    return null;
+        //}).Where(feature => feature != null);
+
+        IEnumerable<Mapsui.IFeature?> features = waypointsMapsuiServicePointModelList.Select(oMapsuiServicePointModel =>
         {
-            if (latLonList.Count == 2)
-            {
-                if (double.TryParse(latLonList[0], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lat) &&
-                    double.TryParse(latLonList[1], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lon))
-                {
-                    //Mapsui.IFeature feature = new PointFeature(SphericalMercator.FromLonLat(lon, lat).ToMPoint());
-                    //feature["name"] = c.Name;
-                    return new PointFeature(SphericalMercator.FromLonLat(lon, lat).ToMPoint());
-                }
-            }
-            return null;
+            //Mapsui.IFeature feature = new PointFeature(SphericalMercator.FromLonLat(lon, lat).ToMPoint());
+            //feature["name"] = c.Name;
+            return oMapsuiServicePointModel.ToMapsuiFeature();
         }).Where(feature => feature != null);
 
-        LayersBuilder oLayersBuilder = new LayersBuilder();
+
+        OfflineGpsApp.CodeBase.Services.MapsuiService.Builders.LayersBuilder.LayersBuilder oLayersBuilder = new OfflineGpsApp.CodeBase.Services.MapsuiService.Builders.LayersBuilder.LayersBuilder();
         MemoryLayer gpxTrackPointsMemoryLayer = oLayersBuilder.CreateMemoryLayer(features, "GPXTrackPointsLayer");
         oMapsuiMap.Layers.Add(gpxTrackPointsMemoryLayer);
         oMapsuiMap.RefreshData();
@@ -198,61 +172,61 @@ public partial class MainPage : ContentPage
         //set GPX layer to map +++
         //show GPX layer on map +++
 
-        var lineStringLayer = oLayersBuilder.CreateLineStringLayerFromLatLonList(AllLatLonListList);
+        var lineStringLayer = oLayersBuilder.CreateLineStringLayerFromMapsuiServicePointModelList(trackpointsMapsuiServicePointModelList, LayerTitle: "LineStringLayer");
         oMapsuiMap.Layers.Add(lineStringLayer);
         oMapsuiMap.Home = n => n.CenterOnAndZoomTo(lineStringLayer.Extent!.Centroid, 200);
         //oMapsuiMap.Refresh();
     }
 
-    /// <summary>
-    /// Читает GPX-файл и возвращает границы (мин/макс широта/долгота)
-    /// </summary>
-    /// <param name="gpxPath">Путь к GPX-файлу</param>
-    /// <returns>Кортеж (minLat, maxLat, minLon, maxLon)</returns>
-    private async System.Threading.Tasks.Task<(double minLat, double maxLat, double minLon, double maxLon)> GetGpxBoundsAsync(string? gpxFileContent)
-    {
-        double minLat = double.MaxValue;
-        double maxLat = double.MinValue;
-        double minLon = double.MaxValue;
-        double maxLon = double.MinValue;
+    ///// <summary>
+    ///// Читает GPX-файл и возвращает границы (мин/макс широта/долгота)
+    ///// </summary>
+    ///// <param name="gpxPath">Путь к GPX-файлу</param>
+    ///// <returns>Кортеж (minLat, maxLat, minLon, maxLon)</returns>
+    //private async System.Threading.Tasks.Task<(double minLat, double maxLat, double minLon, double maxLon)> GetGpxBoundsAsync(string? gpxFileContent)
+    //{
+    //    double minLat = double.MaxValue;
+    //    double maxLat = double.MinValue;
+    //    double minLon = double.MaxValue;
+    //    double maxLon = double.MinValue;
 
-        try
-        {
-            // Читаем файл как строку
-            //string gpxFileContent = await System.IO.File.ReadAllTextAsync(gpxPath);
+    //    try
+    //    {
+    //        // Читаем файл как строку
+    //        //string gpxFileContent = await System.IO.File.ReadAllTextAsync(gpxPath);
 
-            GpxParserService oGpxParserService = new GpxParserService();
-            System.Collections.Generic.List<List<string>> AllLatLonListList = oGpxParserService.process_fc(gpxFileContent);
+    //        GpxParserService oGpxParserService = new GpxParserService();
+    //        System.Collections.Generic.List<List<string>> AllLatLonListList = oGpxParserService.process_parse_trackpoints_from_gpx(gpxFileContent);
 
-            foreach (List<string> latLonList in AllLatLonListList)
-            {
-                if (latLonList.Count == 2)
-                {
-                    if (double.TryParse(latLonList[0], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lat) &&
-                        double.TryParse(latLonList[1], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lon))
-                    {
-                        minLat = System.Math.Min(minLat, lat);
-                        maxLat = System.Math.Max(maxLat, lat);
-                        minLon = System.Math.Min(minLon, lon);
-                        maxLon = System.Math.Max(maxLon, lon);
-                    }
-                }
-            }
+    //        foreach (List<string> latLonList in AllLatLonListList)
+    //        {
+    //            if (latLonList.Count == 2)
+    //            {
+    //                if (double.TryParse(latLonList[0], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lat) &&
+    //                    double.TryParse(latLonList[1], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lon))
+    //                {
+    //                    minLat = System.Math.Min(minLat, lat);
+    //                    maxLat = System.Math.Max(maxLat, lat);
+    //                    minLon = System.Math.Min(minLon, lon);
+    //                    maxLon = System.Math.Max(maxLon, lon);
+    //                }
+    //            }
+    //        }
 
-            // Если границы не найдены, возвращаем (0, 0, 0, 0)
-            if (minLat == double.MaxValue || maxLat == double.MinValue || minLon == double.MaxValue || maxLon == double.MinValue)
-            {
-                return (0, 0, 0, 0);
-            }
+    //        // Если границы не найдены, возвращаем (0, 0, 0, 0)
+    //        if (minLat == double.MaxValue || maxLat == double.MinValue || minLon == double.MaxValue || maxLon == double.MinValue)
+    //        {
+    //            return (0, 0, 0, 0);
+    //        }
 
-            return (minLat, maxLat, minLon, maxLon);
-        }
-        catch (System.Exception ex)
-        {
-            await this.DisplayAlert("Ошибка", $"Не удалось прочитать GPX: {ex.Message}", "OK");
-            return (0, 0, 0, 0);
-        }
-    }
+    //        return (minLat, maxLat, minLon, maxLon);
+    //    }
+    //    catch (System.Exception ex)
+    //    {
+    //        await this.DisplayAlert("Ошибка", $"Не удалось прочитать GPX: {ex.Message}", "OK");
+    //        return (0, 0, 0, 0);
+    //    }
+    //}
 
     /// <summary>
     /// Method to center the map on the given bounds calculated area of the GPX file

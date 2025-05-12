@@ -3,6 +3,7 @@ using Mapsui.Layers;
 using Mapsui.Nts.Editing;
 using Mapsui.Rendering.Skia.Extensions;
 using Mapsui.Tiling.Layers;
+
 using nsMapsuiService = OfflineGpsApp.CodeBase.Services.MapsuiService;
 using nsApp = OfflineGpsApp.CodeBase.App;
 
@@ -18,13 +19,14 @@ public class MapsuiService
     bool IsMapInitialized { get; set; } = false;
 
     public Mapsui.Map OMapsuiMap { get; set; } = new Mapsui.Map();
-    private nsMapsuiService.Builders.LayersBuilder oLayersBuilder;
+
+    private nsMapsuiService.Builders.LayersBuilder.LayersBuilder oLayersBuilder;
 
     bool isMapEmpty = false;
 
     public MapsuiService()
     {
-        oLayersBuilder = new nsMapsuiService.Builders.LayersBuilder();
+        oLayersBuilder = new nsMapsuiService.Builders.LayersBuilder.LayersBuilder();
     }
 
 
@@ -33,7 +35,7 @@ public class MapsuiService
         if (oModelList == null || oModelList.Count == 0) isMapEmpty = true;
         if (!IsMapInitialized)
         {
-            TileLayer osmTileLayer = Mapsui.Tiling.OpenStreetMap.CreateTileLayer();
+            TileLayer osmTileLayer = nsMapsuiService.Builders.TileSourceBuilder.TileSourceBuilder.CreateTileLayer(isUseOnlineTiles: false);
 
             OMapsuiMap.Layers.Add(osmTileLayer);
 
@@ -44,7 +46,7 @@ public class MapsuiService
 
                 //CenterMapOnPoints(oMemoryLayer);
                 //todo: to define that like async call or dont?
-                CenterMapOnPoints(oLayersBuilder.OTaskModelsMemoryLayer);
+                await CenterMapOnPoints(oLayersBuilder.OTaskModelsMemoryLayer);
             }
 
             IsMapInitialized = true;

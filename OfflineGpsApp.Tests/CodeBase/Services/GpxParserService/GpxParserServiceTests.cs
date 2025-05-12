@@ -50,15 +50,15 @@ namespace OfflineGpsApp.Tests.CodeBase.Services.GpxParserService
             //string inputStr = "<gpx><trkpt lat=\"52.31\" lon=\"20.30\"></trkpt><trkpt lat=\"52.32\" lon=\"20.31\"></trkpt></gpx>";
 
             // Act
-            List<(double Lattitude, double Longitude)> LatLonTupleList = _gpxParserService.process_parseTrackPointsGpxToTupleList_fc(gpxContentStr);
+            List<List<string>> LatLonListList = _gpxParserService.process_fc(gpxContentStr);
 
             // Assert
-            Assert.NotNull(LatLonTupleList);
-            Assert.Equal(2, LatLonTupleList.Count);
-            Assert.Equal(52.31022119522095, LatLonTupleList[0].Lattitude);
-            Assert.Equal(20.76190710067749, LatLonTupleList[0].Longitude);
-            Assert.Equal(52.34967875294387, LatLonTupleList[1].Lattitude);
-            Assert.Equal(20.303464019671082, LatLonTupleList[1].Longitude);
+            Assert.NotNull(LatLonListList);
+            Assert.Equal(2, LatLonListList.Count);
+            Assert.Equal("52.31022119522095", LatLonListList[0][0]);
+            Assert.Equal("20.76190710067749", LatLonListList[0][1]);
+            Assert.Equal("52.34967875294387", LatLonListList[1][0]);
+            Assert.Equal("20.303464019671082", LatLonListList[1][1]);
         }
 
         [Fact]
@@ -68,7 +68,7 @@ namespace OfflineGpsApp.Tests.CodeBase.Services.GpxParserService
             string inputStr = "<gpx><trkpt></trkpt></gpx>";
 
             // Act
-            var result = _gpxParserService.process_parseTrackPointsGpxToTupleList_fc(inputStr);
+            var result = _gpxParserService.process_fc(inputStr);
 
             // Assert
             Assert.NotNull(result);

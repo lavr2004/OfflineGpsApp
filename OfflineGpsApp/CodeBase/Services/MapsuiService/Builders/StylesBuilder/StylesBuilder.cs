@@ -1,7 +1,7 @@
 ﻿
 using Mapsui.Styles;
 
-namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Builders;
+namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Builders.StylesBuilder;
 
 public static class StylesBuilder
 {
@@ -9,10 +9,10 @@ public static class StylesBuilder
     /// Create a PinStyle for the map
     /// </summary>
     /// <returns></returns>
-    public static Mapsui.Styles.SymbolStyle CreatePinStyle()
+    public static SymbolStyle CreatePinStyle()
     {
         //creation blue pin for the map
-        return Mapsui.Styles.SymbolStyles.CreatePinStyle(symbolScale: 0.7);
+        return SymbolStyles.CreatePinStyle(symbolScale: 0.7);
 
         //creation round pin for the map
         //Mapsui.Styles.SymbolStyle symbolStyle = new Mapsui.Styles.SymbolStyle();
@@ -27,13 +27,13 @@ public static class StylesBuilder
     /// </summary>
     /// <param name="content"></param>
     /// <returns>CalloutStyle</returns>
-    public static Mapsui.Styles.CalloutStyle CreatePinCalloutStyle(string content)
+    public static CalloutStyle CreatePinCalloutStyle(string content)
     {
         //Offset of images from the center of the image. If IsRelative, than the offset is between -0.5 and +0.5.
-        Mapsui.Styles.Offset offset = new Mapsui.Styles.Offset(0, Mapsui.Styles.SymbolStyle.DefaultHeight * 1f, isRelative: false);
+        Offset offset = new Offset(0, SymbolStyle.DefaultHeight * 1f, isRelative: false);
 
         //Create callout up on featuer
-        return new Mapsui.Styles.CalloutStyle
+        return new CalloutStyle
         {
             Title = content,//Content of Callout title label
             TitleFont = { FontFamily = null, Size = 12, Italic = false, Bold = true },
