@@ -18,6 +18,7 @@ using OfflineGpsApp.CodeBase.Services.GpxParserService;
 using OfflineGpsApp.CodeBase.Services.MapsuiService;
 using OfflineGpsApp.CodeBase.Services.MapsuiService.Models;
 using OfflineGpsApp.CodeBase.Services.MapsuiService.Builders.GpxTrackBuilder;
+using Microsoft.Maui.Storage;
 
 namespace OfflineGpsApp;
 
@@ -77,18 +78,40 @@ public partial class MainPage : ContentPage
         //set GPX layer to map
         //show GPX layer on map
 
-        string? gpxContent;
-
-        
-        try
+        bool hasPermission = await OfflineGpsApp.CodeBase.App.Settings.RequestPermissionsSettings.RequestStoragePermission();
+        if (!hasPermission)
         {
-            gpxContent = await OfflineGpsApp.CodeBase.App.Settings.FileSystemSettings.GetReadStringFromMauiAsset("20250421_HIKING_WARSZAWA-KAMPINOS.gpx");
-        }
-        catch (System.Exception ex)
-        {
-            await this.DisplayAlert("Ошибка", $"Не удалось прочитать GPX: {ex.Message}", "OK");
+            await DisplayAlert("ERROR", "No have granted access to storage", "ОК");
             return;
         }
+
+        string? gpxContent;
+
+        // Вызываем метод для выбора GPX-файла
+        //Microsoft.Maui.Storage.FileResult? oFileResult = await OfflineGpsApp.CodeBase.App.Settings.FileSystemSettings.PickLocalGpxAndroid("Выберите GPX файл");
+        gpxContent = await OfflineGpsApp.CodeBase.App.Settings.FileSystemSettings.ReadGpxFileContentFromFileSystemAndroid();
+        if (gpxContent != null)
+        {
+            // Обрабатываем выбранный файл
+            //await DisplayAlert("OK", $"Chosen file: {oFileResult.FileName}", "ОК");
+            await DisplayAlert("OK", $"File choosen successfully", "ОК");
+        }
+        else
+        {
+            try
+            {
+                gpxContent = await OfflineGpsApp.CodeBase.App.Settings.FileSystemSettings.GetReadStringFromMauiAsset("20250421_HIKING_WARSZAWA-KAMPINOS.gpx");
+            }
+            catch (System.Exception ex)
+            {
+                await this.DisplayAlert("ERROR", $"Not possible to read GPX file: {ex.Message}", "OK");
+                return;
+            }
+        }
+        
+
+        
+        
 
         //step 2: Add GPX layer
         //parsing GPX file data +
@@ -244,4 +267,6 @@ public partial class MainPage : ContentPage
         oMapsuiMap.Navigator.ZoomToBox(new MRect(minX, minY, maxX, maxY)); //ADDED: to update map view immediately
         MapViewXaml.Map.RefreshData();
     }
+
+    
 }
