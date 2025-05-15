@@ -8,4 +8,12 @@
 	<!-- Required for Android 11 and above for reading files from external for application storage - reading local GPX files-->
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+	
+	<!-- Permission for accessing location -->
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+	<uses-feature android:name="android.hardware.location" android:required="false" />
+	<uses-feature android:name="android.hardware.location.gps" android:required="false" />
+	<uses-feature android:name="android.hardware.location.network" android:required="false" />
+	<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 </manifest>

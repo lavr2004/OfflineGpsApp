@@ -19,6 +19,8 @@ using OfflineGpsApp.CodeBase.Services.MapsuiService;
 using OfflineGpsApp.CodeBase.Services.MapsuiService.Models;
 using OfflineGpsApp.CodeBase.Services.MapsuiService.Builders.GpxTrackBuilder;
 using Microsoft.Maui.Storage;
+using OfflineGpsApp.CodeBase.Services.GpsService;
+using OfflineGpsApp.CodeBase.App.Adapters.GPSServiceAdapter;
 
 namespace OfflineGpsApp;
 
@@ -26,8 +28,11 @@ public partial class MainPage : ContentPage
 {
     Mapsui.Map oMapsuiMap;
 
-    public MainPage()
+    private readonly IGpsServiceAdapter _gpsService;//added for GPS service
+
+    public MainPage(IGpsServiceAdapter gpsServiceFromSpecificPlatform)
     {
+        _gpsService = gpsServiceFromSpecificPlatform;//added for GPS service
         InitializeComponent();
         SetupMap();
     }
@@ -41,8 +46,9 @@ public partial class MainPage : ContentPage
             CRS = "EPSG:3857", // Spherical Mercator projection
         };
         oMapsuiMap.Layers.Add(oTileLayer);
-
-        CenterMapOnPoint(oMapsuiMap, latitude: 51.5, longitude: 0);
+        var LatLonTuple = Task.Run(async () => await GpsService.GetLastKnownCoordinates3857()).Result;
+        CenterMapOnPoint(oMapsuiMap, latitude: LatLonTuple.Item1, longitude: LatLonTuple.Item2);
+        //CenterMapOnPoint(oMapsuiMap, latitude: 51.5, longitude: 0);
 
         //step 2: Add GPX layer
         //parsing GPX file data
@@ -52,6 +58,8 @@ public partial class MainPage : ContentPage
         //show GPX layer on map
 
         MapViewXaml.Map = oMapsuiMap;
+        MapViewXaml.MyLocationLayer.UpdateMyLocation(new Mapsui.UI.Maui.Position(LatLonTuple.Item1, LatLonTuple.Item2), animated: true);
+        MapViewXaml.RefreshData();
     }
 
     /// <summary>
@@ -127,8 +135,8 @@ public partial class MainPage : ContentPage
         System.Collections.Generic.List<MapsuiServicePointModel> trackpointsMapsuiServicePointModelList = oGpxParserService.process_parse_trackpoints_from_gpx(gpxContent);
         //System.Collections.Generic.List<MapsuiServicePointModel> waypointsMapsuiServicePointModelList = oGpxParserService.process_parse_waypoints_from_gpx(gpxContent);
         System.Collections.Generic.List<MapsuiServicePointModel> waypointsMapsuiServicePointModelList = new();
-        waypointsMapsuiServicePointModelList.Add(trackpointsMapsuiServicePointModelList[50]);
-        waypointsMapsuiServicePointModelList.Add(trackpointsMapsuiServicePointModelList[100]);
+        waypointsMapsuiServicePointModelList.Add(trackpointsMapsuiServicePointModelList[0]);
+        waypointsMapsuiServicePointModelList.Add(trackpointsMapsuiServicePointModelList[trackpointsMapsuiServicePointModelList.Count - 1]);
 
 
         //(double minLat, double maxLat, double minLon, double maxLon) = await GetGpxBoundsAsync(gpxContent);
@@ -268,5 +276,62 @@ public partial class MainPage : ContentPage
         MapViewXaml.Map.RefreshData();
     }
 
-    
+    protected async override void OnAppearing()
+    {
+        base.OnAppearing();
+
+        var status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+
+        if (status != PermissionStatus.Granted)
+        {
+            await DisplayAlert("ERROR", "Required permissions to access GPS module", "OK");
+            return;
+        }
+
+        Tuple<double, double> LatLonTuple = await GpsService.GetLastKnownCoordinates3857();
+        System.Diagnostics.Debug.WriteLine($"OK: MainPage: OnAppearing: Last known gps location: {LatLonTuple.Item1}, {LatLonTuple.Item2}");
+        MapViewXaml.RefreshData();
+
+
+        // Обновляем местоположение маркера
+        MapViewXaml.MyLocationLayer.UpdateMyLocation(new Mapsui.UI.Maui.Position(LatLonTuple.Item1, LatLonTuple.Item2), true);
+        MapViewXaml.RefreshData();
+
+        //added for GPS service
+        _gpsService.LocationChanged += (sender, e) =>
+        {
+            var newLatitude = e.Latitude;
+            var newLongitude = e.Longitude;
+            MapViewXaml.MyLocationLayer.UpdateMyLocation(new Mapsui.UI.Maui.Position(newLatitude, newLongitude), true);
+            MapViewXaml.RefreshData();
+            CenterMapOnPoint(oMapsuiMap, newLatitude, newLongitude, zoomlevel: 14);
+        };
+
+        _gpsService.StartListening();
+
+        //// Подписка на изменения местоположения
+        //Geolocation.LocationChanged += async (sender, e) =>
+        //{
+        //    var newLatitude = e.Location.Latitude;
+        //    var newLongitude = e.Location.Longitude;
+        //    System.Diagnostics.Debug.WriteLine($"Location changed to: {newLatitude}, {newLongitude}");
+
+        //    // Обновляем местоположение маркера на карте
+        //    MapViewXaml.MyLocationLayer.UpdateMyLocation(new Mapsui.UI.Maui.Position(newLatitude, newLongitude), true);
+        //    MapViewXaml.RefreshData();
+
+        //    // Опционально: центрируем карту на новом местоположении
+        //    CenterMapOnPoint(oMapsuiMap, newLatitude, newLongitude, zoomlevel: 14);
+        //};
+
+        //// Запускаем отслеживание местоположения
+        //await Geolocation.StartListeningAsync(new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(5)));
+    }
+
+    //added for GPS service
+    protected override void OnDisappearing()
+    {
+        _gpsService.StopListening();
+        _gpsService.LocationChanged -= (sender, e) => { };
+    }
 }
