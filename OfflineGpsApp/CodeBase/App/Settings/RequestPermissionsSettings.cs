@@ -26,7 +26,30 @@ namespace OfflineGpsApp.CodeBase.App.Settings
             catch (Exception ex)
             {
                 // Handle the exception as needed
-                Console.WriteLine($"Error requesting storage permission: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"ER: requesting storage permission error: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Request permission to access the device's location.
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<bool> RequestGpsLocationPermission()
+        {
+            try
+            {
+                Microsoft.Maui.ApplicationModel.PermissionStatus permissionstatusEnum = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+                if (permissionstatusEnum != PermissionStatus.Granted)
+                {
+                    permissionstatusEnum = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+                }
+                return permissionstatusEnum == PermissionStatus.Granted;
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception as needed
+                System.Diagnostics.Debug.WriteLine($"ER: requesting location permission error: {ex.Message}");
                 return false;
             }
         }

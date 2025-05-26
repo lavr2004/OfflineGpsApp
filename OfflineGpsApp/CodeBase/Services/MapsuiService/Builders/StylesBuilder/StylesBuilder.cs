@@ -45,4 +45,19 @@ public static class StylesBuilder
             SymbolOffset = offset
         };
     }
+
+    /// <summary>
+    /// Creates style of string on the map
+    /// </summary>
+    /// <returns></returns>
+    public static IStyle CreateLineStringStyle()
+    {
+        return new VectorStyle
+        {
+            Fill = null,
+            Outline = null,
+#pragma warning disable CS8670 // Object or collection initializer implicitly dereferences possibly null member.
+            Line = { Color = Mapsui.Styles.Color.FromString("YellowGreen"), Width = 4 }
+        };
+    }
 }

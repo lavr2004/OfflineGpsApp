@@ -51,6 +51,59 @@ namespace OfflineGpsApp.CodeBase.Services.GpxParserService
             return convert_LatLonListList_into_MapsuiPointModelList(oHammerParser.process_fc(input_str));
         }
 
+        public OfflineGpsApp.CodeBase.Services.MapsuiService.Models.MapsuiServiceTrackModel process_parse_trackpoints_from_gpx_into_trackmodel(string input_str)
+        {
+            OfflineGpsApp.CodeBase.Services.MapsuiService.Models.MapsuiServiceTrackModel oMapsuiServiceTrackModel;
+
+            HammerParserConfig snippetsParsingConfig = new HammerParserConfig();
+            HammerParserConfig valuesParsingConfig = new HammerParserConfig();
+            valuesParsingConfig.is_into_one_line_text = true;
+            valuesParsingConfig.is_include_start_end_tags = false;
+
+            //second snippets loop parsing setup
+            oHammerParser.config_parse_snippets_fc("trkpt ", "trkpt>", snippetsParsingConfig);
+            oHammerParser.config_parse_value_fc("lat=\"", "\"", valuesParsingConfig);//lattitude
+            oHammerParser.config_parse_value_fc("lon=\"", "\"", valuesParsingConfig);//longitude
+            oHammerParser.config_parse_value_fc("<ele>", "</", valuesParsingConfig);//elevation
+
+            List<List<string>> LatLonElevListList = oHammerParser.process_fc(input_str);
+            List<MapsuiServicePointModel> oMapsuiServicePointModelList = new List<MapsuiServicePointModel>();
+            foreach (List<string> latlonlist in LatLonElevListList)
+            {
+                if (latlonlist.Count == 3)
+                {
+                    string lat = latlonlist[0];
+                    string lon = latlonlist[1];
+                    string elev = latlonlist[2];
+
+                    if (string.IsNullOrWhiteSpace(lat) || string.IsNullOrWhiteSpace(lon))
+                    {
+                        System.Diagnostics.Debug.WriteLine($"ER - Invalid lat/lon pair - values problem - {latlonlist}");
+                        continue;
+                    }
+
+                    lat = lat.Replace(',', '.').Trim();
+                    lon = lon.Replace(',', '.').Trim();
+                    elev = elev.Replace(',', '.').Trim();
+
+                    if (Double.TryParse(lat, NumberStyles.Any, CultureInfo.InvariantCulture, out System.Double lattitude) && Double.TryParse(lon, NumberStyles.Any, CultureInfo.InvariantCulture, out System.Double longitude))
+                    {
+                        if (Double.TryParse(elev, NumberStyles.Any, CultureInfo.InvariantCulture, out System.Double elevation) == false)
+                        {
+                            elevation = Double.MinValue; //if elevation is not provided, set it to MinValue
+                        }
+                        MapsuiServicePointModel oMapsuiServicePointModel = new MapsuiServicePointModel(lattitude, longitude, elevation);
+                        oMapsuiServicePointModelList.Add(oMapsuiServicePointModel);
+                    }
+                }
+            }
+
+            oMapsuiServiceTrackModel = new MapsuiServiceTrackModel(oMapsuiServicePointModelList);
+
+            return oMapsuiServiceTrackModel;
+
+        }
+
         public System.Collections.Generic.List<MapsuiServicePointModel> process_parse_waypoints_from_gpx(string input_str)
         {
             HammerParserConfig snippetsParsingConfig = new HammerParserConfig();
@@ -94,53 +147,6 @@ namespace OfflineGpsApp.CodeBase.Services.GpxParserService
                 }
             }
             return oMapsuiServicePointModelList;
-
         }
-        ///// <summary>
-        ///// Provide safe parsing GPX data from input string to List of tuples (Lattitude, Longitude)
-        ///// </summary>
-        ///// <param name="input_str"></param>
-        ///// <returns>List of tuples with latitude and longitude doubles</returns>
-        //public List<(System.Double Lattitude, System.Double Longitude)> process_parseTrackPointsGpxToTupleList_fc(string input_str)
-        //{
-        //    System.Collections.Generic.List<List<string>> AllLatLonListList = process_fc(input_str);
-
-        //    List<(System.Double Lattitude, System.Double Longitude)> LanLonTupleList = new List<(System.Double Lattitude, System.Double Longitude)>();
-        //    if (AllLatLonListList.Count == 0)
-        //    {
-        //        System.Diagnostics.Debug.WriteLine("ER - No points found in GPX file.");
-        //        return LanLonTupleList;
-        //    }
-
-        //    string lat, lon;
-        //    foreach (List<string> latlonlist in AllLatLonListList)
-        //    {
-        //        if (latlonlist.Count == 2)
-        //        {
-        //            lat = latlonlist[0];
-        //            lon = latlonlist[1];
-
-        //            if (string.IsNullOrWhiteSpace(lat) || string.IsNullOrWhiteSpace(lon))
-        //            {
-        //                System.Diagnostics.Debug.WriteLine($"ER - Invalid lat/lon pair - values problem - {latlonlist}");
-        //                continue;
-        //            }
-
-        //            lat = lat.Replace(',', '.').Trim();
-        //            lon = lon.Replace(',', '.').Trim();
-
-        //            if (Double.TryParse(lat, NumberStyles.Any, CultureInfo.InvariantCulture, out System.Double lattitude) && Double.TryParse(lon, NumberStyles.Any, CultureInfo.InvariantCulture, out System.Double longitude))
-        //            {
-        //                LanLonTupleList.Add((lattitude, longitude));
-        //            }
-        //        }
-        //        else
-        //        {
-        //            System.Diagnostics.Debug.WriteLine($"ER - Invalid lat/lon pair - count problem - {latlonlist}");
-        //        }
-        //    }
-
-        //    return LanLonTupleList;
-        //}
     } 
 }

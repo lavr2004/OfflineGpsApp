@@ -93,6 +93,7 @@
 	  <Folder Include="CodeBase\App\MVVM\ViewModel\" />
 	  <Folder Include="CodeBase\App\MVVM\View\" />
 	  <Folder Include="CodeBase\Libs\" />
+	  <Folder Include="CodeBase\StepsOnLoadGpxClicked\" />
 	</ItemGroup>
 
 

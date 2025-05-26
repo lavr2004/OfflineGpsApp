@@ -79,7 +79,7 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Settings
             DateTime nowDateTime = DateTime.Now;
             if (_lastDateTime != DateTime.MinValue && (nowDateTime - _lastDateTime).TotalSeconds < 30)
             {
-                Console.WriteLine($"OK: GlobalSettings: GetLastKnownCoordinates3857: using cached coordinates {_lastLatitude}, {_lastLongitude} - Time: {_lastDateTime} - Passed: {(nowDateTime - _lastDateTime).TotalSeconds} seconds at limit of 60");
+                Console.WriteLine($"OK: GlobalSettings: GetLastKnownCoordinates3857Async: using cached coordinates {_lastLatitude}, {_lastLongitude} - Time: {_lastDateTime} - Passed: {(nowDateTime - _lastDateTime).TotalSeconds} seconds at limit of 60");
                 return new Tuple<double, double>(_lastLatitude, _lastLongitude);
             }
 
@@ -95,11 +95,11 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Settings
             {
                 if ((DateTimeOffset.UtcNow - oLocation.Timestamp).TotalMinutes < 5)
                 {
-                    Console.WriteLine($"OK: GlobalSettings: GetLastKnownCoordinates3857: fresh coordinates got {oLocation.Latitude}, {oLocation.Longitude} - Time: {oLocation.Timestamp}");
+                    Console.WriteLine($"OK: GlobalSettings: GetLastKnownCoordinates3857Async: fresh coordinates got {oLocation.Latitude}, {oLocation.Longitude} - Time: {oLocation.Timestamp}");
                 }
                 else
                 {
-                    Console.WriteLine($"OK: GlobalSettings: GetLastKnownCoordinates3857: old coordinates got {oLocation.Latitude}, {oLocation.Longitude} - Time: {oLocation.Timestamp}");
+                    Console.WriteLine($"OK: GlobalSettings: GetLastKnownCoordinates3857Async: old coordinates got {oLocation.Latitude}, {oLocation.Longitude} - Time: {oLocation.Timestamp}");
                 }
 
                 _lastLatitude = oLocation.Latitude;
@@ -111,7 +111,7 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Settings
 
             }
 
-            Console.WriteLine($"ER: GlobalSettings: GetLastKnownCoordinates3857: didn't got coordinates from GPS module");
+            Console.WriteLine($"ER: GlobalSettings: GetLastKnownCoordinates3857Async: didn't got coordinates from GPS module");
             return new Tuple<double, double>(0, 0);
         }
     }

@@ -12,6 +12,8 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Models
     {
         public double Latitude { get; set; }
         public double Longitude { get; set; }
+        public double Elevation { get; set; }
+
         public string? Title { get; set; }
         public string? Description { get; set; }
         public string? IconPath { get; set; }
@@ -22,19 +24,24 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Models
 
         public bool IsOk { get; set; } = true;
 
-        public MapsuiServicePointModel(double latitude, double longitude)
+        public MapsuiServicePointModel(double latitude, double longitude, double elevation = Double.MinValue)
         {
             Latitude = latitude;
             Longitude = longitude;
+            Elevation = elevation;
         }
 
-        public MapsuiServicePointModel(string latitude, string longitude)
+        public MapsuiServicePointModel(string latitude, string longitude, string elevation = "")
         {
             if (double.TryParse(latitude, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lat) &&
              double.TryParse(longitude, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lon))
             {
                 Latitude = lat;
                 Longitude = lon;
+                if (!String.IsNullOrEmpty(elevation))
+                {
+                    double.TryParse(elevation, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double Elevation);
+                }
             }
             else
             {
