@@ -362,3 +362,10 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /OfflineGpsApp/CodeBase/OpenStreetMapLocalTileSource.cs
+/OfflineGpsApp/CodeBase/Steps/Step003_MoveUserMarkerOnMap.cs
+/OfflineGpsApp/CodeBase/Steps/Step002_CenterMapOnPoint.cs
+/OfflineGpsApp/CodeBase/Steps/Step001_CreateMapEmpty.cs
+/OfflineGpsApp/CodeBase/Services/GpsService/GpsService.cs
+/OfflineGpsApp/CodeBase/Steps/Modules/M002_GpsOperations/GpsOperationsModule.cs
+/OfflineGpsApp/CodeBase/Steps/Modules/M001_MapOperations/MapOperationsModule.cs
+/OfflineGpsApp/CodeBase/Steps/Step001_LoadGpxFileCoordinates.cs
