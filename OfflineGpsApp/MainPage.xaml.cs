@@ -1,24 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.Maui.Controls;
-using System.Reflection.Metadata;
-
-using Mapsui;
+﻿using Mapsui;
 using Mapsui.Projections;
-using Mapsui.Tiling.Layers;
-using Mapsui.UI.Maui;
-using Mapsui.Layers;
-using Mapsui.Extensions;
-using Mapsui.Nts;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
-using Mapsui.Nts.Extensions;
 using OfflineGpsApp.CodeBase.Services.GpxParserService;
-using OfflineGpsApp.CodeBase.Services.MapsuiService;
-using OfflineGpsApp.CodeBase.Services.MapsuiService.Models;
-using OfflineGpsApp.CodeBase.Services.MapsuiService.Builders.GpxTrackBuilder;
-using Microsoft.Maui.Storage;
 using OfflineGpsApp.CodeBase.Services.GpsService;
 using OfflineGpsApp.CodeBase.App.Adapters.GPSServiceAdapter;
 
@@ -27,6 +9,7 @@ namespace OfflineGpsApp;
 public partial class MainPage : ContentPage
 {
     Mapsui.Map oMapsuiMap;
+    OfflineGpsApp.CodeBase.Services.MapsuiService.Models.MapsuiServiceMapModel oMapsuiServiceMapModel;
 
     private readonly IGpsServiceAdapter _gpsService;//added for GPS service
 
@@ -48,11 +31,8 @@ public partial class MainPage : ContentPage
         oMapsuiMap.Layers.Add(oTileLayer);
         System.Tuple<double, double> LatLonTuple = Task.Run(async () => await GpsService.GetLastKnownCoordinates3857()).Result;
         CenterMapOnPoint(oMapsuiMap, latitude: LatLonTuple.Item1, longitude: LatLonTuple.Item2);
-        //oMapsuiMap = OfflineGpsApp.CodeBase.Steps.Step001_CreateMapEmpty.process_fc();
-        //OfflineGpsApp.CodeBase.Steps.Step002_CenterMapOnPoint.process_fc(oMapsuiMap);
 
         MapViewXaml.Map = oMapsuiMap;
-        //OfflineGpsApp.CodeBase.Steps.Step003_MoveUserMarkerOnMap.process_fc(MapViewXaml);
 
         MapViewXaml.MyLocationLayer.UpdateMyLocation(new Mapsui.UI.Maui.Position(LatLonTuple.Item1, LatLonTuple.Item2), animated: true);
         MapViewXaml.RefreshData();
@@ -100,15 +80,6 @@ public partial class MainPage : ContentPage
         }
         else
         {
-            //try
-            //{
-            //    gpxContent = await OfflineGpsApp.CodeBase.App.Settings.FileSystemSettings.GetReadStringFromMauiAsset("20250421_HIKING_WARSZAWA-KAMPINOS.gpx");
-            //}
-            //catch (System.Exception ex)
-            //{
-            //    await this.DisplayAlert("ERROR", $"Not possible to read GPX file: {ex.Message}", "OK");
-            //    return;
-            //}
             return;
         }
 
@@ -117,13 +88,13 @@ public partial class MainPage : ContentPage
         OfflineGpsApp.CodeBase.Services.MapsuiService.Models.MapsuiServiceTrackModel track;
         track = oGpxParserService.process_parse_trackpoints_from_gpx_into_trackmodel(gpxContent);
 
-        // Adding layer with waypoints from GPX track to the map as a separate layer
+        // Adding layer with WAYPOINTS from GPX track to the map as a separate layer
         Mapsui.Layers.MemoryLayer gpxTrackPointsMemoryLayer = track.ToLayerWayPoints("GPXTrackPointsLayer");
         oMapsuiMap.Layers.Add(gpxTrackPointsMemoryLayer);
         
 
-        // Adding layer with line string from GPX track to the map
-        var lineStringLayer = track.ToLineStringLayer("LineStringLayer");
+        // Adding layer with TRACK ROUTE LINE string from GPX track to the map
+        Mapsui.Layers.ILayer lineStringLayer = track.ToLineStringLayer("LineStringLayer");
         oMapsuiMap.Layers.Add(lineStringLayer);
         oMapsuiMap.Home = n => n.CenterOnAndZoomTo(lineStringLayer.Extent!.Centroid, 200);
 
@@ -197,7 +168,9 @@ public partial class MainPage : ContentPage
         _gpsService.StartListening();
     }
 
-    //added for GPS service
+    /// <summary>
+    /// Added for GPS service unsubscribing
+    /// </summary>
     protected override void OnDisappearing()
     {
         _gpsService.StopListening();

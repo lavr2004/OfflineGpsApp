@@ -70,6 +70,27 @@ public class MapsuiServiceTrackModel
         return (minLat, maxLat, minLon, maxLon);
     }
 
+    ///// <summary>
+    ///// Creates a list of features for the track points
+    ///// start - finish - middle waypoints on the track
+    ///// </summary>
+    ///// <returns></returns>
+    //private IEnumerable<Mapsui.IFeature> ToWaypointFeaturesOnTheTrack()
+    //{
+    //    System.Collections.Generic.List<MapsuiServicePointModel> waypointsMapsuiServicePointModelList = new();
+    //    waypointsMapsuiServicePointModelList.Add(oMapsuiPointModelList[0]);//start point
+    //    waypointsMapsuiServicePointModelList.Add(oMapsuiPointModelList[oMapsuiPointModelList.Count - 1]);//finish point
+
+    //    IEnumerable<Mapsui.IFeature> features = waypointsMapsuiServicePointModelList.Select(oMapsuiServicePointModel =>
+    //    {
+    //        //Mapsui.IFeature feature = new PointFeature(SphericalMercator.FromLonLat(lon, lat).ToMPoint());
+    //        //feature["name"] = c.Name;
+    //        return oMapsuiServicePointModel.ToMapsuiFeature();
+    //    }).Where(feature => feature != null);
+
+    //    return features;
+    //}
+
     /// <summary>
     /// Creates a list of features for the track points
     /// start - finish - middle waypoints on the track
@@ -77,16 +98,30 @@ public class MapsuiServiceTrackModel
     /// <returns></returns>
     private IEnumerable<Mapsui.IFeature> ToWaypointFeaturesOnTheTrack()
     {
-        System.Collections.Generic.List<MapsuiServicePointModel> waypointsMapsuiServicePointModelList = new();
-        waypointsMapsuiServicePointModelList.Add(oMapsuiPointModelList[0]);//start point
-        waypointsMapsuiServicePointModelList.Add(oMapsuiPointModelList[oMapsuiPointModelList.Count - 1]);//finish point
+        //System.Collections.Generic.List<MapsuiServicePointModel> waypointsMapsuiServicePointModelList = new();
+        List<Mapsui.IFeature> features = new List<Mapsui.IFeature>();
 
-        IEnumerable<Mapsui.IFeature> features = waypointsMapsuiServicePointModelList.Select(oMapsuiServicePointModel =>
+        double accumulatedDistance = 0.0;
+        double trackLengthMeters = this.CalculateTrackLengthInMeters();
+        double intervalMeters = DetermineWaypointInterval(trackLengthMeters);
+
+        //adding start point
+        features.Add(oMapsuiPointModelList[0].ToMapsuiFeature());//start point
+
+        //adding middle points based on interval
+        for (int i=0; i < oMapsuiPointModelList.Count - 1; i++)
         {
-            //Mapsui.IFeature feature = new PointFeature(SphericalMercator.FromLonLat(lon, lat).ToMPoint());
-            //feature["name"] = c.Name;
-            return oMapsuiServicePointModel.ToMapsuiFeature();
-        }).Where(feature => feature != null);
+            double segmentLength = OfflineGpsApp.CodeBase.Services.MapsuiService.Helpers.GeoCalculationsHelper.HaversineDistanceMeters(oMapsuiPointModelList[i], oMapsuiPointModelList[i + 1]);
+            accumulatedDistance += segmentLength;
+            if (accumulatedDistance > intervalMeters)
+            {
+                features.Add(oMapsuiPointModelList[i + 1].ToMapsuiFeature());
+                accumulatedDistance = 0;
+            }
+        }
+
+        //adding finish point
+        features.Add(oMapsuiPointModelList[oMapsuiPointModelList.Count - 1].ToMapsuiFeature());//finish point
 
         return features;
     }
@@ -119,5 +154,37 @@ public class MapsuiServiceTrackModel
             Style = OfflineGpsApp.CodeBase.Services.MapsuiService.Builders.StylesBuilder.StylesBuilder.CreateLineStringStyle()//create style for every line on layer
 
         };
+    }
+
+    /// <summary>
+    /// Calculating track length using HaverSine formula
+    /// </summary>
+    /// <returns></returns>
+    public double CalculateTrackLengthInMeters()
+    {
+        double totalLengthInMeters = 0.0;
+        for (int i = 0; i < oMapsuiPointModelList.Count - 1; i++)
+        {
+            totalLengthInMeters += OfflineGpsApp.CodeBase.Services.MapsuiService.Helpers.GeoCalculationsHelper.HaversineDistanceMeters(oMapsuiPointModelList[i], oMapsuiPointModelList[i + 1]);
+        }
+        return totalLengthInMeters;
+    }
+
+    /// <summary>
+    /// Determining waypoint interval based on track length
+    /// </summary>
+    /// <param name="trackLengthMeters"></param>
+    /// <returns></returns>
+    private double DetermineWaypointInterval(double trackLengthMeters)
+    {
+        return trackLengthMeters * 0.1; // 10% of the track length as interval
+        //if (trackLengthMeters >= 100000) // 100 км и больше
+        //    return 10000; // Каждые 10 км
+        //else if (trackLengthMeters >= 50000) // 50 км и больше
+        //    return 5000; // Каждые 5 км
+        //else if (trackLengthMeters >= 100) // 100 м и больше
+        //    return 10; // Каждые 10 м
+        //else
+        //    return 1; // Каждые 1 м для очень коротких треков //ADDED
     }
 }
