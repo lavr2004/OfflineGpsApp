@@ -1,4 +1,5 @@
-﻿using Mapsui.Layers;
+﻿using Mapsui.Extensions;
+using Mapsui.Layers;
 using Mapsui.Nts;
 using Mapsui.Nts.Extensions;
 using Mapsui.Projections;
@@ -85,14 +86,49 @@ public class MapsuiServiceTrackModel
     //    {
     //        //Mapsui.IFeature feature = new PointFeature(SphericalMercator.FromLonLat(lon, lat).ToMPoint());
     //        //feature["name"] = c.Name;
-    //        return oMapsuiServicePointModel.ToMapsuiFeature();
+    //        return oMapsuiServicePointModel.ToPointFeature();
     //    }).Where(feature => feature != null);
 
     //    return features;
     //}
 
+    ///// <summary>
+    ///// Creates a list of features for the track points
+    ///// start - finish - middle waypoints on the track
+    ///// </summary>
+    ///// <returns></returns>
+    //private IEnumerable<Mapsui.IFeature> ToWaypointFeaturesOnTheTrack()
+    //{
+    //    //System.Collections.Generic.List<MapsuiServicePointModel> waypointsMapsuiServicePointModelList = new();
+    //    List<Mapsui.IFeature> features = new List<Mapsui.IFeature>();
+
+    //    double accumulatedDistance = 0.0;
+    //    double trackLengthMeters = this.CalculateTrackLengthInMeters();
+    //    double intervalMeters = DetermineWaypointInterval(trackLengthMeters);
+
+    //    //adding start point
+    //    features.Add(oMapsuiPointModelList[0].ToPointFeature());//start point
+
+    //    //adding middle points based on interval
+    //    for (int i=0; i < oMapsuiPointModelList.Count - 1; i++)
+    //    {
+    //        double segmentLength = OfflineGpsApp.CodeBase.Services.MapsuiService.Helpers.GeoCalculationsHelper.HaversineDistanceMeters(oMapsuiPointModelList[i], oMapsuiPointModelList[i + 1]);
+    //        accumulatedDistance += segmentLength;
+    //        if (accumulatedDistance > intervalMeters)
+    //        {
+    //            features.Add(oMapsuiPointModelList[i + 1].ToPointFeature());
+    //            accumulatedDistance = 0;
+    //        }
+    //    }
+
+    //    //adding finish point
+    //    features.Add(oMapsuiPointModelList[oMapsuiPointModelList.Count - 1].ToPointFeature());//finish point
+
+    //    return features;
+    //}
+
     /// <summary>
-    /// Creates a list of features for the track points
+    /// Creates a list of features for the track points with custom points icons
     /// start - finish - middle waypoints on the track
     /// </summary>
     /// <returns></returns>
@@ -105,23 +141,24 @@ public class MapsuiServiceTrackModel
         double trackLengthMeters = this.CalculateTrackLengthInMeters();
         double intervalMeters = DetermineWaypointInterval(trackLengthMeters);
 
-        //adding start point
-        features.Add(oMapsuiPointModelList[0].ToMapsuiFeature());//start point
+        //adding start point - RED TRIANGLE
+        Mapsui.Layers.PointFeature startFeature = oMapsuiPointModelList[0].ToStartPointOnMap();
+        features.Add(startFeature);
 
         //adding middle points based on interval
-        for (int i=0; i < oMapsuiPointModelList.Count - 1; i++)
+        for (int i = 0; i < oMapsuiPointModelList.Count - 1; i++)
         {
             double segmentLength = OfflineGpsApp.CodeBase.Services.MapsuiService.Helpers.GeoCalculationsHelper.HaversineDistanceMeters(oMapsuiPointModelList[i], oMapsuiPointModelList[i + 1]);
             accumulatedDistance += segmentLength;
             if (accumulatedDistance > intervalMeters)
             {
-                features.Add(oMapsuiPointModelList[i + 1].ToMapsuiFeature());
+                features.Add(oMapsuiPointModelList[i + 1].ToMiddleTrackPointOnMap());
                 accumulatedDistance = 0;
             }
         }
 
         //adding finish point
-        features.Add(oMapsuiPointModelList[oMapsuiPointModelList.Count - 1].ToMapsuiFeature());//finish point
+        features.Add(oMapsuiPointModelList[oMapsuiPointModelList.Count - 1].ToFinishPointOnMap());//finish point
 
         return features;
     }
@@ -131,12 +168,14 @@ public class MapsuiServiceTrackModel
         IEnumerable<Mapsui.IFeature> oPointFeatures = this.ToWaypointFeaturesOnTheTrack();
 
         if (oPointFeatures == null || oPointFeatures.Count() == 0) throw new ArgumentException("ER - oPointFeatures is null or empty");
+
         return new MemoryLayer()
         {
             Name = layerTitle,//"MarkersLayer",
             IsMapInfoLayer = true,
             Features = new MemoryProvider(oPointFeatures).Features,
-            Style = Mapsui.Styles.SymbolStyles.CreatePinStyle(symbolScale: 0.7),//create style for every pin on layer
+            Style = null,//setting up "null" to use specific style that every feature have inside self
+            //Style = Mapsui.Styles.SymbolStyles.CreatePinStyle(symbolScale: 0.7),//create style for every pin on layer
         };
     }
 

@@ -74,4 +74,27 @@ public class FeaturesBuilder
     {
         return CreateFeatureFromMapsuiPointClass(oMapsuiPointClass);
     }
+
+    /// <summary>
+    /// Creation point feature that looks like a triangle on the map.
+    /// </summary>
+    /// <param name="Latitude"></param>
+    /// <param name="Longitude"></param>
+    /// <returns></returns>
+    public static Mapsui.Layers.PointFeature CreateTrianglePointFeatureOnMap(double Latitude, double Longitude)
+    {
+        Mapsui.Layers.PointFeature onMapPointFeature = new PointFeature(SphericalMercator.FromLonLat(Longitude, Latitude).ToMPoint());
+
+        onMapPointFeature.Styles = new System.Collections.Generic.List<Mapsui.Styles.IStyle>
+            {
+                new Mapsui.Styles.SymbolStyle
+                {
+                    SymbolType = Mapsui.Styles.SymbolType.Triangle,
+                    SymbolScale = 0.8,
+                    Fill = new Mapsui.Styles.Brush(Mapsui.Styles.Color.Red),
+                    Outline = new Mapsui.Styles.Pen(Mapsui.Styles.Color.Black, 1.0)
+                }
+            };
+        return onMapPointFeature;
+    }
 }

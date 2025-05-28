@@ -88,15 +88,17 @@ public partial class MainPage : ContentPage
         OfflineGpsApp.CodeBase.Services.MapsuiService.Models.MapsuiServiceTrackModel track;
         track = oGpxParserService.process_parse_trackpoints_from_gpx_into_trackmodel(gpxContent);
 
-        // Adding layer with WAYPOINTS from GPX track to the map as a separate layer
-        Mapsui.Layers.MemoryLayer gpxTrackPointsMemoryLayer = track.ToLayerWayPoints("GPXTrackPointsLayer");
-        oMapsuiMap.Layers.Add(gpxTrackPointsMemoryLayer);
-        
 
         // Adding layer with TRACK ROUTE LINE string from GPX track to the map
         Mapsui.Layers.ILayer lineStringLayer = track.ToLineStringLayer("LineStringLayer");
         oMapsuiMap.Layers.Add(lineStringLayer);
         oMapsuiMap.Home = n => n.CenterOnAndZoomTo(lineStringLayer.Extent!.Centroid, 200);
+
+
+        // Adding layer with WAYPOINTS from GPX track to the map as a separate layer
+        Mapsui.Layers.MemoryLayer gpxTrackPointsMemoryLayer = track.ToLayerWayPoints("GPXTrackPointsLayer");
+        oMapsuiMap.Layers.Add(gpxTrackPointsMemoryLayer);
+        
 
         // Centering map on bounds of the GPX track
         (double minLat, double maxLat, double minLon, double maxLon) = await track.GetGpxTrackBoundsAsync();
