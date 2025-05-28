@@ -19,18 +19,18 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Models;
 /// </summary>
 public class MapsuiServiceTrackModel
 {
-    List<MapsuiServicePointModel> oMapsuiPointModelList;
+    List<MapsuiServiceTrackPointModel> oMapsuiPointModelList;
 
-    public List<MapsuiServicePointModel> OMapsuiPointModelList
+    public List<MapsuiServiceTrackPointModel> OMapsuiPointModelList
     {
         get { return oMapsuiPointModelList; }
     }
 
-    public MapsuiServiceTrackModel(List<MapsuiServicePointModel> oMapsuiPointModelList = null)
+    public MapsuiServiceTrackModel(List<MapsuiServiceTrackPointModel> oMapsuiPointModelList = null)
     {
         if (oMapsuiPointModelList == null)
         {
-            oMapsuiPointModelList = new List<MapsuiServicePointModel>();
+            oMapsuiPointModelList = new List<MapsuiServiceTrackPointModel>();
         }
         else
         {
@@ -38,7 +38,7 @@ public class MapsuiServiceTrackModel
         }
     }
 
-    public void AddPointToTrack(MapsuiServicePointModel oMapsuiPointClass)
+    public void AddPointToTrack(MapsuiServiceTrackPointModel oMapsuiPointClass)
     {
         oMapsuiPointModelList.Add(oMapsuiPointClass);
     }
@@ -54,7 +54,7 @@ public class MapsuiServiceTrackModel
         double minLon = double.MaxValue;
         double maxLon = double.MinValue;
 
-        foreach (MapsuiServicePointModel oMapsuiServicePointModel in oMapsuiPointModelList)
+        foreach (MapsuiServiceTrackPointModel oMapsuiServicePointModel in oMapsuiPointModelList)
         {
             minLat = System.Math.Min(minLat, oMapsuiServicePointModel.Latitude);
             maxLat = System.Math.Max(maxLat, oMapsuiServicePointModel.Latitude);
@@ -142,7 +142,7 @@ public class MapsuiServiceTrackModel
         double intervalMeters = DetermineWaypointInterval(trackLengthMeters);
 
         //adding start point - RED TRIANGLE
-        Mapsui.Layers.PointFeature startFeature = oMapsuiPointModelList[0].ToStartPointOnMap();
+        Mapsui.Layers.PointFeature startFeature = oMapsuiPointModelList[0].ToStartTrackPointOnMap();
         features.Add(startFeature);
 
         //adding middle points based on interval
@@ -158,7 +158,7 @@ public class MapsuiServiceTrackModel
         }
 
         //adding finish point
-        features.Add(oMapsuiPointModelList[oMapsuiPointModelList.Count - 1].ToFinishPointOnMap());//finish point
+        features.Add(oMapsuiPointModelList[oMapsuiPointModelList.Count - 1].ToFinishTrackPointOnMap());//finish point
 
         return features;
     }

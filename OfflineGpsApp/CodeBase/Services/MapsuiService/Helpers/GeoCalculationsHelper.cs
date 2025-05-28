@@ -12,7 +12,7 @@ public static class GeoCalculationsHelper
     /// <param name="point1"></param>
     /// <param name="point2"></param>
     /// <returns></returns>
-    public static double HaversineDistanceMeters(MapsuiServicePointModel point1, MapsuiServicePointModel point2)
+    public static double HaversineDistanceMeters(MapsuiServiceTrackPointModel point1, MapsuiServiceTrackPointModel point2)
     {
         double lat1 = point1.Latitude * System.Math.PI / 180;
         double lat2 = point2.Latitude * System.Math.PI / 180;

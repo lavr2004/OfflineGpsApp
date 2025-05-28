@@ -19,14 +19,14 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Builders.GpxTrackBuilder
         /// </summary>
         /// <param name="MapsuiServicePointModelList">List of point models from our custom MapsuiService</param>
         /// <returns>Tuple of (minLat, maxLat, minLon, maxLon)</returns>
-        public static async System.Threading.Tasks.Task<(double minLat, double maxLat, double minLon, double maxLon)> GetGpxBoundsAsync(System.Collections.Generic.List<MapsuiServicePointModel> MapsuiServicePointModelList)
+        public static async System.Threading.Tasks.Task<(double minLat, double maxLat, double minLon, double maxLon)> GetGpxBoundsAsync(System.Collections.Generic.List<MapsuiServiceTrackPointModel> MapsuiServicePointModelList)
         {
             double minLat = double.MaxValue;
             double maxLat = double.MinValue;
             double minLon = double.MaxValue;
             double maxLon = double.MinValue;
 
-            foreach (MapsuiServicePointModel oMapsuiServicePointModel in MapsuiServicePointModelList)
+            foreach (MapsuiServiceTrackPointModel oMapsuiServicePointModel in MapsuiServicePointModelList)
             {
                 minLat = System.Math.Min(minLat, oMapsuiServicePointModel.Latitude);
                 maxLat = System.Math.Max(maxLat, oMapsuiServicePointModel.Latitude);

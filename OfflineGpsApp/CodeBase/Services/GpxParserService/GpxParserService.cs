@@ -35,7 +35,7 @@ namespace OfflineGpsApp.CodeBase.Services.GpxParserService
             return oHammerParser.process_fc(input_str);//System.Collections.Generic.List<List<string>> AllLatLonListList;
         }
 
-        public System.Collections.Generic.List<MapsuiServicePointModel> process_parse_trackpoints_from_gpx(string input_str)
+        public System.Collections.Generic.List<MapsuiServiceTrackPointModel> process_parse_trackpoints_from_gpx(string input_str)
         {
             HammerParserConfig snippetsParsingConfig = new HammerParserConfig();
             HammerParserConfig valuesParsingConfig = new HammerParserConfig();
@@ -67,7 +67,7 @@ namespace OfflineGpsApp.CodeBase.Services.GpxParserService
             oHammerParser.config_parse_value_fc("<ele>", "</", valuesParsingConfig);//elevation
 
             List<List<string>> LatLonElevListList = oHammerParser.process_fc(input_str);
-            List<MapsuiServicePointModel> oMapsuiServicePointModelList = new List<MapsuiServicePointModel>();
+            List<MapsuiServiceTrackPointModel> oMapsuiServicePointModelList = new List<MapsuiServiceTrackPointModel>();
             foreach (List<string> latlonlist in LatLonElevListList)
             {
                 if (latlonlist.Count == 3)
@@ -92,7 +92,7 @@ namespace OfflineGpsApp.CodeBase.Services.GpxParserService
                         {
                             elevation = Double.MinValue; //if elevation is not provided, set it to MinValue
                         }
-                        MapsuiServicePointModel oMapsuiServicePointModel = new MapsuiServicePointModel(lattitude, longitude, elevation);
+                        MapsuiServiceTrackPointModel oMapsuiServicePointModel = new MapsuiServiceTrackPointModel(lattitude, longitude, elevation);
                         oMapsuiServicePointModelList.Add(oMapsuiServicePointModel);
                     }
                 }
@@ -104,7 +104,7 @@ namespace OfflineGpsApp.CodeBase.Services.GpxParserService
 
         }
 
-        public System.Collections.Generic.List<MapsuiServicePointModel> process_parse_waypoints_from_gpx(string input_str)
+        public System.Collections.Generic.List<MapsuiServiceTrackPointModel> process_parse_waypoints_from_gpx(string input_str)
         {
             HammerParserConfig snippetsParsingConfig = new HammerParserConfig();
             HammerParserConfig valuesParsingConfig = new HammerParserConfig();
@@ -120,9 +120,9 @@ namespace OfflineGpsApp.CodeBase.Services.GpxParserService
             return convert_LatLonListList_into_MapsuiPointModelList(oHammerParser.process_fc(input_str));
         }
 
-        private List<MapsuiServicePointModel> convert_LatLonListList_into_MapsuiPointModelList(List<List<string>> LatLonListList)
+        private List<MapsuiServiceTrackPointModel> convert_LatLonListList_into_MapsuiPointModelList(List<List<string>> LatLonListList)
         {
-            List<MapsuiServicePointModel> oMapsuiServicePointModelList = new List<MapsuiServicePointModel>();
+            List<MapsuiServiceTrackPointModel> oMapsuiServicePointModelList = new List<MapsuiServiceTrackPointModel>();
             foreach (List<string> latlonlist in LatLonListList)
             {
                 if (latlonlist.Count == 2)
@@ -141,7 +141,7 @@ namespace OfflineGpsApp.CodeBase.Services.GpxParserService
 
                     if (Double.TryParse(lat, NumberStyles.Any, CultureInfo.InvariantCulture, out System.Double lattitude) && Double.TryParse(lon, NumberStyles.Any, CultureInfo.InvariantCulture, out System.Double longitude))
                     {
-                        MapsuiServicePointModel oMapsuiServicePointModel = new MapsuiServicePointModel(lattitude, longitude);
+                        MapsuiServiceTrackPointModel oMapsuiServicePointModel = new MapsuiServiceTrackPointModel(lattitude, longitude);
                         oMapsuiServicePointModelList.Add(oMapsuiServicePointModel);
                     }
                 }

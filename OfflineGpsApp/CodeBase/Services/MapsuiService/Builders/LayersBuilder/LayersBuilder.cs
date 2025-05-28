@@ -20,7 +20,7 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Builders.LayersBuilder;
 /// <param name="feature"></param>
 /// <param name="oMapsuiPointClass"></param>
 /// <returns></returns>
-public delegate Mapsui.IFeature AddPropertiesToFeatureDelegate(Mapsui.IFeature feature, Models.MapsuiServicePointModel oMapsuiPointClass);
+public delegate Mapsui.IFeature AddPropertiesToFeatureDelegate(Mapsui.IFeature feature, Models.MapsuiServiceTrackPointModel oMapsuiPointClass);
 
 /// <summary>
 /// Creating layers for map
@@ -36,7 +36,7 @@ public class LayersBuilder
     /// </summary>
     /// <param name="oMapsuiPointClassList"></param>
     /// <returns></returns>
-    public MemoryLayer CreateMapsuiPointsLayer(IEnumerable<Models.MapsuiServicePointModel> oMapsuiPointClassList, AddPropertiesToFeatureDelegate? addPropsToFeatureMethod = null, bool isNewPinJustCreated = false)
+    public MemoryLayer CreateMapsuiPointsLayer(IEnumerable<Models.MapsuiServiceTrackPointModel> oMapsuiPointClassList, AddPropertiesToFeatureDelegate? addPropsToFeatureMethod = null, bool isNewPinJustCreated = false)
     {
         string calloutContent;
         //conversion markers list into features on the map
@@ -88,7 +88,7 @@ public class LayersBuilder
         };
     }
 
-    public void UpdateLayerWithNewMapsuiPointModels(Mapsui.Map oMapsuiMap, string oNameLayerToUpdate, List<Models.MapsuiServicePointModel> oMapsuiPointClassList)
+    public void UpdateLayerWithNewMapsuiPointModels(Mapsui.Map oMapsuiMap, string oNameLayerToUpdate, List<Models.MapsuiServiceTrackPointModel> oMapsuiPointClassList)
     {
         if (oMapsuiPointClassList.Count == 0) return;
 
@@ -115,7 +115,7 @@ public class LayersBuilder
         oMapsuiMap.Layers.Add(newLayer);
     }
 
-    public void AddPointToExistingLayer(Mapsui.Map map, Models.MapsuiServicePointModel newMapsuiPoint, string layerName)
+    public void AddPointToExistingLayer(Mapsui.Map map, Models.MapsuiServiceTrackPointModel newMapsuiPoint, string layerName)
     {
         // Search via existing layers by name
         var existingLayer = map.Layers.FirstOrDefault(layer => layer.Name == layerName) as MemoryLayer;
@@ -156,7 +156,7 @@ public class LayersBuilder
         };
     }
 
-    public ILayer CreateLineStringLayerFromMapsuiServicePointModelList(List<MapsuiServicePointModel> oMapsuiServicePointModelList, string LayerTitle)
+    public ILayer CreateLineStringLayerFromMapsuiServicePointModelList(List<MapsuiServiceTrackPointModel> oMapsuiServicePointModelList, string LayerTitle)
     {
         //var lineString = (LineString)new WKTReader().Read(WKTGr5);
         //lineString = new LineString(lineString.Coordinates.Select(v => SphericalMercator.FromLonLat(v.Y, v.X).ToCoordinate()).ToArray());

@@ -8,7 +8,7 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Models
     /// <summary>
     /// Class that represents a point on the map
     /// </summary>
-    public class MapsuiServicePointModel
+    public class MapsuiServiceTrackPointModel
     {
         public double Latitude { get; set; }
         public double Longitude { get; set; }
@@ -24,14 +24,18 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Models
 
         public bool IsOk { get; set; } = true;
 
-        public MapsuiServicePointModel(double latitude, double longitude, double elevation = Double.MinValue)
+        public double X { get; set; }
+        public double Y { get; set; }
+
+        public MapsuiServiceTrackPointModel(double latitude, double longitude, double elevation = Double.MinValue)
         {
             Latitude = latitude;
             Longitude = longitude;
             Elevation = elevation;
+            (X, Y) = SphericalMercator.FromLonLat(this.Longitude, this.Latitude);
         }
 
-        public MapsuiServicePointModel(string latitude, string longitude, string elevation = "")
+        public MapsuiServiceTrackPointModel(string latitude, string longitude, string elevation = "")
         {
             if (double.TryParse(latitude, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lat) &&
              double.TryParse(longitude, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lon))
@@ -58,7 +62,7 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Models
             //.ToMPoint() - is Mapsui.Extensions method
             //Mapsui.IFeature feature = new PointFeature(SphericalMercator.FromLonLat(lon, lat).ToMPoint());
             //feature["name"] = c.Name;
-            return new PointFeature(SphericalMercator.FromLonLat(this.Longitude, this.Latitude).ToMPoint());
+            return new PointFeature(SphericalMercator.FromLonLat(this.Longitude, this.Latitude).ToMPoint());//.ToMPoint() from Mapsui.Extensions
         }
 
         /// <summary>
@@ -74,7 +78,7 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Models
         /// Provide conversion of current point to a Mapsui.Layers.PointFeature with styles for displaying on the map.
         /// </summary>
         /// <returns></returns>
-        public Mapsui.Layers.PointFeature ToStartPointOnMap()
+        public Mapsui.Layers.PointFeature ToStartTrackPointOnMap()
         {
             Mapsui.Layers.PointFeature onMapPointFeature = ToPointFeature();
             onMapPointFeature.Styles = new System.Collections.Generic.List<Mapsui.Styles.IStyle>
@@ -113,7 +117,7 @@ namespace OfflineGpsApp.CodeBase.Services.MapsuiService.Models
             return onMapPointFeature;
         }
 
-        public Mapsui.Layers.PointFeature ToFinishPointOnMap()
+        public Mapsui.Layers.PointFeature ToFinishTrackPointOnMap()
         {
             Mapsui.Layers.PointFeature onMapPointFeature = ToPointFeature();
             onMapPointFeature.Styles = new System.Collections.Generic.List<Mapsui.Styles.IStyle>

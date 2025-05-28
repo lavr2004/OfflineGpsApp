@@ -6,5 +6,10 @@
     <Grid>
         <mapsui:MapView x:Name="MapViewXaml" VerticalOptions="FillAndExpand"/>
         <Button Text="Загрузить GPX" Clicked="OnLoadGpxClicked" VerticalOptions="End"/>
+        <!-- ADDED: progress bar and label for filtering progress -->
+        <!--<StackLayout x:Name="ProgressBarStackLayout" VerticalOptions="Center" HorizontalOptions="Center" IsVisible="{Binding IsFiltering, Mode=OneWay}">
+            <Label x:Name="ProgressLabel" Text="Filtering monuments: 0%" FontSize="16" TextColor="White" BackgroundColor="Black" Padding="10" />
+            <ProgressBar x:Name="ProgressBar" Progress="0" WidthRequest="200" />
+        </StackLayout>-->
     </Grid>
 </ContentPage>
